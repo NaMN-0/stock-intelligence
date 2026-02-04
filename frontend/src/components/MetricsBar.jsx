@@ -3,55 +3,77 @@ import { Activity, ShieldAlert, Database, Clock } from 'lucide-react';
 
 const MetricsBar = ({ metrics }) => {
     const formatUptime = (seconds) => {
-        if (!seconds) return '0s';
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = Math.floor(seconds % 60);
-        return `${h}h ${m}m ${s}s`;
+        if (!seconds) return '00:00:00';
+        const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+        const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+        const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${s}`;
     };
 
     return (
         <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '1rem',
-            marginBottom: '2rem'
+            marginBottom: '2.5rem'
         }}>
-            <div className="glass terminal-border" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '12px' }} title="Total unique symbols currently tracked by Quant Sourcer">
-                <Activity className="text-secondary" size={20} />
-                <div>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>ACTIVE UNIVERSE</p>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{metrics?.total_tickers || 0} ASSETS</p>
+            <div className="glass terminal-border" style={{ padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ padding: '10px', background: 'rgba(0, 255, 213, 0.1)', borderRadius: '10px', color: 'var(--accent-primary)' }}>
+                    <Activity size={20} />
                 </div>
-            </div>
-
-            <div className="glass terminal-border" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Database className="text-secondary" size={20} />
-                <div>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>MARKET INTEL SYNCED</p>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{metrics?.data_processed_mb?.toFixed(2) || '0.00'} MB</p>
-                </div>
-            </div>
-
-            <div className="glass terminal-border" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <ShieldAlert className={metrics?.errors_count > 0 ? "text-danger" : "text-secondary"} size={20} />
-                <div>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>SYSTEM ERRORS</p>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: metrics?.errors_count > 0 ? 'var(--danger)' : 'white' }}>{metrics?.errors_count || 0} ALERTS</p>
-                </div>
-            </div>
-
-            <div className="glass terminal-border" style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Clock className="text-secondary" size={20} />
                 <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>ENGINE UPTIME</p>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{formatUptime(metrics?.uptime_seconds)}</p>
+                    <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: '900', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>Global Universe</p>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                        <span style={{ fontSize: '1.25rem', fontWeight: '900', color: 'white' }}>{metrics?.total_tickers || 0}</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>ASSETS</span>
+                    </div>
                 </div>
-                <div style={{ paddingLeft: '1rem', borderLeft: '1px solid var(--border)', minWidth: '100px' }}>
-                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 'bold' }}>SESSION</p>
-                    <p style={{ fontSize: '0.9rem', fontWeight: '800', color: 'var(--accent-secondary)' }}>
-                        {metrics?.market_session?.toUpperCase() || 'OFFLINE'}
-                    </p>
+            </div>
+
+            <div className="glass terminal-border" style={{ padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ padding: '10px', background: 'rgba(0, 162, 255, 0.1)', borderRadius: '10px', color: 'var(--accent-secondary)' }}>
+                    <Database size={20} />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: '900', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>Intel Cache</p>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                        <span style={{ fontSize: '1.25rem', fontWeight: '900', color: 'white' }}>{metrics?.data_processed_mb?.toFixed(2) || '0.00'}</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="glass terminal-border" style={{ padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{
+                    padding: '10px',
+                    background: metrics?.errors_count > 0 ? 'rgba(255, 45, 85, 0.1)' : 'rgba(255, 183, 0, 0.1)',
+                    borderRadius: '10px',
+                    color: metrics?.errors_count > 0 ? 'var(--danger)' : 'var(--warning)'
+                }}>
+                    <ShieldAlert size={20} />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: '900', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>System Integrity</p>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                        <span style={{ fontSize: '1.25rem', fontWeight: '900', color: metrics?.errors_count > 0 ? 'var(--danger)' : 'white' }}>
+                            {metrics?.errors_count || 0}
+                        </span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>ALERTS</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="glass terminal-border" style={{ padding: '1.25rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ padding: '10px', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '100px', color: 'var(--text-dim)' }}>
+                    <Clock size={20} />
+                </div>
+                <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: '900', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '4px' }}>Runtime</p>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '900', color: 'white', fontFamily: 'var(--font-mono)' }}>{formatUptime(metrics?.uptime_seconds)}</span>
+                </div>
+                <div style={{ borderLeft: '1px solid var(--border-glass)', paddingLeft: '12px', textAlign: 'right' }}>
+                    <p style={{ fontSize: '0.55rem', color: 'var(--text-muted)', fontWeight: '900', textTransform: 'uppercase', marginBottom: '2px' }}>Session</p>
+                    <p style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent-secondary)' }}>{metrics?.market_session?.split(',')[0].toUpperCase() || 'OFFLINE'}</p>
                 </div>
             </div>
         </div>

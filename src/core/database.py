@@ -14,7 +14,11 @@ class DatabaseManager:
     def _init_db(self):
         """Initializes the database schema."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
+                # Enable WAL mode for better concurrency on shared volumes
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                
                 cursor = conn.cursor()
                 # Table for Ticker States
                 cursor.execute("""
@@ -46,7 +50,7 @@ class DatabaseManager:
     def save_ticker_state(self, ticker: str, state_dict: dict):
         """Saves or updates a ticker's state in the database."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR REPLACE INTO ticker_states 
@@ -68,7 +72,7 @@ class DatabaseManager:
         """Loads all ticker states from the database."""
         states = {}
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM ticker_states")
@@ -89,7 +93,7 @@ class DatabaseManager:
     def save_metrics(self, metrics_dict: dict):
         """Saves system metrics."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT OR REPLACE INTO system_metrics 
@@ -110,7 +114,7 @@ class DatabaseManager:
     def load_metrics(self) -> dict:
         """Loads system metrics."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with sqlite3.connect(self.db_path, timeout=30) as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("SELECT * FROM system_metrics WHERE id = 1")

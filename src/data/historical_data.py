@@ -73,6 +73,17 @@ class HistoricalDataManager:
             # Ensure consistent index name for frontend
             data.index.name = "Datetime"
             
+            # Robust Column Validation
+            if isinstance(data.columns, pd.MultiIndex):
+                data.columns = data.columns.get_level_values(0)
+            
+            # Remove any possible duplicates and capitalize common columns
+            data.columns = [str(c).capitalize() for c in data.columns]
+            
+            if 'Close' not in data.columns:
+                logger.error(f"Required 'Close' column missing for {ticker} after download")
+                return None
+                
             cache_path = os.path.join(self.cache_dir, f"{ticker}_{timeframe}.parquet")
             data.to_parquet(cache_path)
             return data
@@ -116,22 +127,27 @@ class HistoricalDataManager:
                             # Ensure consistent index name for frontend
                             ticker_data.index.name = "Datetime"
                             
-                            # Flatten columns if necessary
+                            # Flatten columns if necessary and sanitize
                             if isinstance(ticker_data.columns, pd.MultiIndex):
                                 ticker_data.columns = ticker_data.columns.get_level_values(0)
+                            
+                            ticker_data.columns = [str(c).capitalize() for c in ticker_data.columns]
+                            
+                            if 'Close' not in ticker_data.columns:
+                                logger.warning(f"Skipping {ticker} - Missing 'Close' column in batch fetch")
+                                continue
                             
                             cache_path = os.path.join(self.cache_dir, f"{ticker}_{tf}.parquet")
                             ticker_data.to_parquet(cache_path)
                             
-                            # Seed the initial price in state cache from the latest historical point
-                            if 'Close' in ticker_data.columns and not ticker_data['Close'].empty:
-                                price_series = ticker_data['Close'].dropna()
-                                if not price_series.empty:
-                                    last_price = price_series.iloc[-1]
-                                    # Handle case where last_price might still be a Series (rare but possible with duplicates)
-                                    if hasattr(last_price, 'iloc'):
-                                        last_price = last_price.iloc[0]
-                                    state_cache.update_price(ticker, float(last_price))
+                            # Seed the initial price in state cache
+                            price_series = ticker_data['Close'].dropna()
+                            if not price_series.empty:
+                                last_price = price_series.iloc[-1]
+                                # Handle case where last_price might still be a Series
+                                if hasattr(last_price, 'iloc'):
+                                    last_price = last_price.iloc[0]
+                                state_cache.update_price(ticker, float(last_price))
                         except Exception as e:
                             state_cache.add_error(f"Cache save error {ticker}: {str(e)}")
                             continue

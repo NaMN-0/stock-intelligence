@@ -4,10 +4,13 @@ import TickerCard from './components/TickerCard';
 import TickerDetails from './components/TickerDetails';
 import MetricsBar from './components/MetricsBar';
 import LandingPage from './components/LandingPage';
-import { LayoutGrid, BarChart3, Settings, ShieldCheck, Zap, TrendingUp, TrendingDown, Minus, RefreshCw } from 'lucide-react';
+import { LayoutGrid, BarChart3, Settings, ShieldCheck, ShieldAlert, Zap, TrendingUp, TrendingDown, Minus, RefreshCw, Plus, Globe } from 'lucide-react';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
+  const [showUniverseModal, setShowUniverseModal] = useState(false);
+  const [newTickersInput, setNewTickersInput] = useState('');
+  const [isAddingTickers, setIsAddingTickers] = useState(false);
   const [tickers, setTickers] = useState([]);
   const [data, setData] = useState({});
   const [metrics, setMetrics] = useState(null);
@@ -110,6 +113,30 @@ function App() {
     }
   };
 
+  const handleAddTickers = async () => {
+    if (!newTickersInput.trim()) return;
+    setIsAddingTickers(true);
+    try {
+      const symbols = newTickersInput.split(/[\s,]+/).map(s => s.trim().toUpperCase()).filter(s => s);
+      await fetch(`${api.baseUrl}/tickers/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(symbols)
+      });
+      setNewTickersInput('');
+      setShowUniverseModal(false);
+
+      // Refresh local ticker list
+      const updated = await api.getTickers();
+      setTickers(updated);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to ingst assets. Check console.');
+    } finally {
+      setIsAddingTickers(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', background: '#000' }}>
@@ -120,135 +147,292 @@ function App() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%', minHeight: '100vh' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-        <div onClick={() => setShowLanding(true)} style={{ cursor: 'pointer' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-primary)', marginBottom: '0.5rem' }}>
-            <Zap size={24} fill="currentColor" />
-            <h1 style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '2px' }}>QUANT SOURCER</h1>
+      <header style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '4rem',
+        padding: '1.5rem 0',
+        borderBottom: '1px solid var(--border-glass)'
+      }}>
+        <div onClick={() => setShowLanding(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 0 20px rgba(0, 255, 213, 0.2)'
+          }}>
+            <Zap size={24} color="#000" fill="currentColor" />
           </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>High-Velocity Market Intelligence Engine</p>
+          <div>
+            <h1 style={{
+              fontSize: '1.4rem',
+              fontWeight: '900',
+              letterSpacing: '3px',
+              textTransform: 'uppercase',
+              background: 'linear-gradient(90deg, #fff, var(--text-dim))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>QUANT SOURCER</h1>
+            <p style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: '500', letterSpacing: '1px' }}>NEURAL MARKET INTELLIGENCE</p>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <div className="glass" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)', boxShadow: '0 0 10px var(--success)' }} />
-            ENGINE LIVE
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <div className="glass mono" style={{
+            padding: '0.6rem 1.2rem',
+            borderRadius: '100px',
+            fontSize: '0.7rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: 'bold',
+            letterSpacing: '1px',
+            border: '1px solid var(--border-glow)'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: 'var(--accent-primary)',
+              animation: 'pulse-soft 2s infinite',
+              boxShadow: '0 0 10px var(--accent-primary)'
+            }} />
+            CORE STATUS: NOMINAL
+          </div>
+
+          <button
+            onClick={() => setShowUniverseModal(true)}
+            className="glass mono"
+            style={{
+              padding: '0.6rem 1.2rem',
+              borderRadius: '100px',
+              fontSize: '0.7rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontWeight: '900',
+              letterSpacing: '1px',
+              border: '1px solid var(--accent-secondary)',
+              color: 'var(--accent-secondary)',
+              cursor: 'pointer',
+              transition: 'all 0.3s'
+            }}
+          >
+            <Plus size={14} />
+            EXPAND UNIVERSE
+          </button>
+
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '1px solid var(--border-glass)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }} className="terminal-border">
+            <Settings size={18} color="var(--text-dim)" />
           </div>
         </div>
       </header>
 
       <MetricsBar metrics={metrics} />
 
-      {/* TERMINAL LOGS - Fixed Bottom Right */}
       <div style={{
         position: 'fixed',
-        bottom: '2rem',
-        right: '2rem',
-        width: '380px',
+        bottom: '2.5rem',
+        right: '2.5rem',
+        width: '400px',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem'
       }}>
         {metrics?.is_syncing && (
-          <div className="glass terminal-border animate-fade-in" style={{ padding: '1rem', background: 'rgba(5, 5, 5, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <RefreshCw size={14} className="animate-spin text-secondary" />
-                <span style={{ fontWeight: 'bold', letterSpacing: '1px', fontSize: '0.7rem' }}>SYNCING ENGINE...</span>
+          <div className="glass terminal-border animate-fade-in" style={{
+            padding: '1.25rem',
+            background: 'var(--bg-deep)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+            borderRadius: '16px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <RefreshCw size={14} className="animate-spin" color="var(--accent-primary)" />
+                <span className="mono" style={{ fontWeight: '900', letterSpacing: '2px', fontSize: '0.65rem', color: 'white' }}>SYNCING_SYSTEM_CORE</span>
               </div>
-              <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
+              <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '900' }}>
                 {Math.round((metrics.processed_tickers / metrics.total_tickers) * 100)}%
               </span>
             </div>
-            <div style={{ height: '3px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ height: '4px', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', overflow: 'hidden' }}>
               <div style={{
                 height: '100%',
                 width: `${(metrics.processed_tickers / metrics.total_tickers) * 100}%`,
-                background: 'var(--accent-primary)',
-                boxShadow: '0 0 10px var(--accent-primary)',
-                transition: 'width 0.5s ease-out'
+                background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
+                boxShadow: '0 0 15px var(--accent-glow)',
+                transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
               }} />
             </div>
-            <div style={{ marginTop: '0.8rem', fontSize: '0.65rem', color: 'var(--text-secondary)', fontFamily: 'monospace', lineHeight: '1.4' }}>
-              {`> [INFO] Ranking strategies for asset universe...`}
-              <br />
-              {`> [INFO] ${metrics.processed_tickers}/${metrics.total_tickers} complete`}
+            <div className="mono" style={{ marginTop: '1rem', fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+              <span style={{ color: 'var(--accent-primary)' }}>[SECURE]</span> Initializing neural weights for {metrics.total_tickers} assets...<br />
+              <span style={{ color: 'var(--accent-secondary)' }}>[STABLE]</span> {metrics.processed_tickers} nodes validated.
             </div>
           </div>
         )}
 
         {metrics?.last_error && (
           <div className="glass terminal-border animate-fade-in" style={{
-            padding: '0.8rem 1rem',
-            background: 'rgba(5, 5, 5, 0.9)',
-            backdropFilter: 'blur(10px)',
+            padding: '1rem',
+            background: 'rgba(255, 45, 85, 0.05)',
             borderLeft: '4px solid var(--danger)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+            borderRadius: '12px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <ShieldCheck size={14} style={{ color: 'var(--danger)' }} />
-              <span style={{ fontSize: '0.75rem', color: 'var(--danger)', fontWeight: 'bold' }}>SYSTEM ALERT</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+              <ShieldAlert size={14} color="var(--danger)" />
+              <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--danger)', fontWeight: '900', letterSpacing: '1px' }}>KERNEL_EXCEPTION</span>
             </div>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+            <div className="mono" style={{ fontSize: '0.65rem', color: 'var(--text-dim)', opacity: 0.8 }}>
               {metrics.last_error}
             </div>
           </div>
         )}
       </div>
 
-      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-        <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+      <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '450px' }}>
+          <div style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+            <LayoutGrid size={18} />
+          </div>
           <input
             type="text"
-            placeholder="Search symbols..."
-            className="glass"
+            placeholder="FILTER ASSET UNIVERSE..."
+            className="glass mono"
             style={{
-              padding: '0.8rem 1.5rem',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              background: 'rgba(255,255,255,0.02)',
+              padding: '1.1rem 1.25rem 1.1rem 3.5rem',
+              border: '1px solid var(--border-glass)',
+              borderRadius: '12px',
               color: 'white',
               width: '100%',
-              outline: 'none',
-              fontSize: '0.9rem',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              letterSpacing: '1px',
+              transition: 'all 0.3s'
             }}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        <div className="glass terminal-border" style={{ display: 'flex', padding: '4px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)' }}>
+        <div className="glass terminal-border" style={{ display: 'flex', padding: '6px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
           <button
             onClick={() => setFilter('all')}
-            style={{ padding: '0.6rem 1.2rem', borderRadius: '6px', background: filter === 'all' ? 'var(--accent-primary)' : 'transparent', color: filter === 'all' ? 'black' : 'white', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+            className="mono"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              background: filter === 'all' ? 'var(--accent-primary)' : 'transparent',
+              color: filter === 'all' ? '#000' : 'var(--text-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '900',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              letterSpacing: '1px'
+            }}
           >
-            <LayoutGrid size={16} /> ALL ({tickers.length})
+            ALL
           </button>
           <button
             onClick={() => setFilter('bullish')}
-            style={{ padding: '0.6rem 1.2rem', borderRadius: '6px', background: filter === 'bullish' ? 'var(--success)' : 'transparent', color: filter === 'bullish' ? 'black' : 'white', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+            className="mono"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              background: filter === 'bullish' ? 'var(--success)' : 'transparent',
+              color: filter === 'bullish' ? '#000' : 'var(--text-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '900',
+              transition: 'all 0.3s'
+            }}
           >
-            <TrendingUp size={16} /> BULL {tickers.filter(t => data[t]?.signal?.signal === 'bullish').length}
+            BULL
           </button>
           <button
             onClick={() => setFilter('bearish')}
-            style={{ padding: '0.6rem 1.2rem', borderRadius: '6px', background: filter === 'bearish' ? 'var(--danger)' : 'transparent', color: filter === 'bearish' ? 'black' : 'white', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+            className="mono"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              background: filter === 'bearish' ? 'var(--danger)' : 'transparent',
+              color: filter === 'bearish' ? '#000' : 'var(--text-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '900',
+              transition: 'all 0.3s'
+            }}
           >
-            <TrendingDown size={16} /> BEAR {tickers.filter(t => data[t]?.signal?.signal === 'bearish').length}
+            BEAR
           </button>
           <button
             onClick={() => setFilter('neutral')}
-            style={{ padding: '0.6rem 1.2rem', borderRadius: '6px', background: filter === 'neutral' ? 'var(--text-secondary)' : 'transparent', color: 'white', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+            className="mono"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              background: filter === 'neutral' ? 'var(--text-muted)' : 'transparent',
+              color: filter === 'neutral' ? 'white' : 'var(--text-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '900',
+              transition: 'all 0.3s'
+            }}
           >
-            <Minus size={16} /> NEUT {tickers.filter(t => data[t]?.signal?.signal === 'neutral').length}
+            NEUT
           </button>
+          <div style={{ width: '1px', background: 'var(--border-glass)', margin: '0 8px' }} />
           <button
             onClick={() => setFilter('penny')}
-            style={{ padding: '0.6rem 1.2rem', borderRadius: '6px', borderLeft: '1px solid var(--border)', background: filter === 'penny' ? 'var(--accent-secondary)' : 'transparent', color: filter === 'penny' ? 'white' : 'var(--accent-secondary)', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', transition: 'all 0.2s' }}
+            className="mono"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              background: filter === 'penny' ? 'var(--accent-secondary)' : 'transparent',
+              color: filter === 'penny' ? 'white' : 'var(--accent-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '900',
+              transition: 'all 0.3s'
+            }}
           >
-            <Zap size={16} /> PENNY {tickers.filter(t => data[t]?.price > 0 && data[t]?.price < 5.0).length}
+            LOW_VAL
           </button>
         </div>
       </div>
@@ -288,6 +472,93 @@ function App() {
             onClose={() => setSelectedTicker(null)}
           />
         </>
+      )}
+
+      {showUniverseModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.9)',
+          zIndex: 2000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(10px)'
+        }} onClick={() => setShowUniverseModal(false)}>
+          <div className="glass terminal-border animate-fade-in" style={{
+            width: '90vw',
+            maxWidth: '500px',
+            padding: '2.5rem',
+            background: 'var(--bg-deep)',
+            borderRadius: '24px',
+            boxShadow: '0 0 100px rgba(0, 162, 255, 0.1)'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
+              <div style={{ padding: '10px', background: 'rgba(0, 162, 255, 0.1)', borderRadius: '12px', color: 'var(--accent-secondary)' }}>
+                <Globe size={24} />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '900', letterSpacing: '1px' }}>EXPAND UNIVERSE</h2>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 'bold' }}>MANUAL ASSET INGESTION CORE</p>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+              Paste ticker symbols below (comma or space separated). The engine will automatically initialize historical backtests and neural weights.
+            </p>
+
+            <textarea
+              className="glass mono"
+              placeholder="AAPL, TSLA, BTC-USD, MSFT..."
+              style={{
+                width: '100%',
+                height: '150px',
+                padding: '1.25rem',
+                background: 'rgba(0,0,0,0.3)',
+                border: '1px solid var(--border-glass)',
+                borderRadius: '12px',
+                color: 'white',
+                fontSize: '0.85rem',
+                letterSpacing: '1px',
+                marginBottom: '2rem',
+                resize: 'none'
+              }}
+              value={newTickersInput}
+              onChange={(e) => setNewTickersInput(e.target.value)}
+            />
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                className="glass mono"
+                style={{ flex: 1, padding: '1rem', borderRadius: '12px', background: 'transparent', border: '1px solid var(--border-glass)', color: 'white', cursor: 'pointer', fontWeight: '900' }}
+                onClick={() => setShowUniverseModal(false)}
+              >
+                ABORT
+              </button>
+              <button
+                className="glass mono"
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  background: 'var(--accent-secondary)',
+                  border: 'none',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontWeight: '900',
+                  boxShadow: '0 0 20px rgba(0, 162, 255, 0.3)'
+                }}
+                disabled={isAddingTickers}
+                onClick={handleAddTickers}
+              >
+                {isAddingTickers ? 'INITIALIZING...' : 'INGEST ASSETS'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <footer style={{ marginTop: '4rem', padding: '2rem 0', borderTop: '1px solid var(--border)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>

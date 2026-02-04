@@ -35,7 +35,9 @@ class StrategySelector:
                 
                 # Use 1h timeframe for selection by default
                 df = self.data_manager.get_historical_data(ticker, "1h")
-                if df is None or df.empty:
+                if df is None or df.empty or 'Close' not in df.columns:
+                    if df is not None and not df.empty:
+                        logger.warning(f"Skipping {ticker} - Missing 'Close' column in historical data.")
                     # Update progress metrics even if skipped
                     state_cache.increment_processed()
                     continue

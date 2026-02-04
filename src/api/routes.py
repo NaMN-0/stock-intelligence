@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import pandas as pd
 from typing import List, Dict, Any
+import asyncio
 from src.core.config import tickers
 from src.core.state import state_cache
 from src.data.historical_data import HistoricalDataManager
@@ -14,6 +15,40 @@ data_manager = HistoricalDataManager()
 @router.get("/tickers", response_model=List[str])
 async def get_tickers():
     return tickers
+
+@router.post("/tickers/add")
+async def add_tickers(new_symbols: List[str]):
+    """Adds new tickers to the universe and triggers discovery."""
+    from src.core.config import tickers
+    import yaml
+    import os
+    
+    added = []
+    for sym in new_symbols:
+        s = sym.strip().upper()
+        if s and s not in tickers:
+            tickers.append(s)
+            added.append(s)
+    
+    if added:
+        # Persist to tickers.yaml
+        try:
+            config_path = os.path.join(os.getcwd(), "config", "tickers.yaml")
+            with open(config_path, 'w') as f:
+                yaml.dump({"tickers": tickers}, f)
+            logger.info(f"Persisted {len(added)} new tickers to config")
+        except Exception as e:
+            logger.error(f"Failed to persist tickers: {e}")
+
+        # Trigger orchestrator to start syncing these new tickers
+        # The orchestrator discovery runs periodically, but we can force a sync
+        # For now, the discovery loop will pick them up if we add them to the global list
+        # but let's signal the orchestrator if possible.
+        # Since orchestrator is global, we can use it.
+        from main import orchestrator
+        asyncio.create_task(orchestrator.run_discovery())
+        
+    return {"status": "success", "added": added, "total": len(tickers)}
 
 @router.get("/states")
 async def get_all_states():
