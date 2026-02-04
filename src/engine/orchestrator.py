@@ -49,7 +49,7 @@ class ServiceOrchestrator:
         """Runs the ticker discovery process and updates the global tickers list."""
         global tickers
         from src.engine.discovery import TickerDiscovery
-        discovery_limit = 2000
+        discovery_limit = 50
         discovery_results = await TickerDiscovery.get_high_potential_tickers(limit=discovery_limit)
         
         if discovery_results:
