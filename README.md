@@ -69,6 +69,21 @@ docker-compose up --build
 - **Frontend**: `http://localhost`
 - **Backend API**: `http://localhost:8000`
 
+## Deployment
+
+### Deploy to Render
+This project is configured for easy deployment on **Render** using the included `render.yaml` blueprint.
+
+1. **Push to GitHub**: Ensure your code is in a GitHub repository.
+2. **Connect to Render**: 
+   - Go to the [Render Dashboard](https://dashboard.render.com/).
+   - Click **New +** and select **Blueprint**.
+   - Connect your GitHub repository.
+3. **Deploy**: Render will automatically detect the `render.yaml` and set up both the backend (Web Service with Persistent Disk) and frontend (Static Site).
+
+> [!NOTE]
+> The backend uses a persistent disk at `/app/data_cache` to store historical data. This ensures fast restarts and reduces API calls to Yahoo Finance.
+
 ## API Endpoints
 - `GET /tickers`: List of tracked tickers.
 - `GET /live-price/{ticker}`: Current live price and timestamp.
@@ -76,4 +91,4 @@ docker-compose up --build
 - `GET /current-signal/{ticker}`: Current signal (bullish/bearish/neutral) and confidence.
 - `GET /expected-move/{ticker}`: Expected price range and bias.
 - `GET /historical/{ticker}`: Recent historical data with indicators.
-- `GET /health`: System health status.
+- `GET /health`: System health status (useful for Render health checks).

@@ -15,7 +15,7 @@ def sanitize_json_data(data: Any) -> Any:
             data = data.dict()
             
         if isinstance(data, dict):
-            return {k: sanitize_json_data(v) for k, v in data.items()}
+            return {str(k): sanitize_json_data(v) for k, v in data.items()}
         elif isinstance(data, list):
             return [sanitize_json_data(v) for v in data]
         elif isinstance(data, float):

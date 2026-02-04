@@ -45,14 +45,14 @@ class TickerDiscovery:
             "UBS", "LYG", "BCS", "NWG", "RELI", "INFY", "WIT", "HDB", "IBN", "TSM",
             "ASML", "BABA", "JD", "PDD", "BIDU", "NTES", "TME", "IQ", "BILI", "XPEV",
             "LI", "NIO", "BYDDF", "HMC", "TM", "STLA", "RACE", "F", "GM", "LCID",
-            "RIVN", "FSR", "WKHS", "QS", "CHPT", "BLNK", "EVGO", "PLUG", "FCEL", "BE",
+            "RIVN", "WKHS", "QS", "CHPT", "BLNK", "EVGO", "PLUG", "FCEL", "BE",
             "NEE", "DUK", "SO", "D", "AEP", "EXC", "SRE", "XEL", "ED", "PEG",
             "PCG", "FE", "WEC", "ES", "AWK", "VST", "TLN", "CEG", "NET", "OKTA",
             "CRWD", "ZS", "DDOG", "SNOW", "PLTR", "AI", "PATH", "U", "RBLX", "SE",
             "MELI", "SHOP", "SQ", "PYPL", "AFRM", "UPST", "SOFI", "HOOD", "COIN", "MARA",
             "RIOT", "HUT", "HIVE", "BITF", "CLSK", "WULF", "MSTR", "DKNG", "PENN", "WYNN",
             "LVS", "MLCO", "CZR", "MGM", "HLT", "MAR", "H", "BKNG", "EXPE", "TRIP",
-            "ABNB", "UBER", "LYFT", "DASH", "GRUB", "TKWY", "W", "CHWY", "ETSY", "EBAY"
+            "ABNB", "UBER", "LYFT", "DASH", "W", "CHWY", "ETSY", "EBAY"
         ]
 
         for url, table_index, col_name in sources:

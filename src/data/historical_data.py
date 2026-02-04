@@ -119,10 +119,14 @@ class HistoricalDataManager:
                             ticker_data.to_parquet(cache_path)
                             
                             # Seed the initial price in state cache from the latest historical point
-                            if not ticker_data['Close'].empty:
-                                last_price = ticker_data['Close'].dropna().iloc[-1]
-                                if hasattr(last_price, 'item'): last_price = float(last_price)
-                                state_cache.update_price(ticker, float(last_price))
+                            if 'Close' in ticker_data.columns and not ticker_data['Close'].empty:
+                                price_series = ticker_data['Close'].dropna()
+                                if not price_series.empty:
+                                    last_price = price_series.iloc[-1]
+                                    # Handle case where last_price might still be a Series (rare but possible with duplicates)
+                                    if hasattr(last_price, 'iloc'):
+                                        last_price = last_price.iloc[0]
+                                    state_cache.update_price(ticker, float(last_price))
                         except Exception as e:
                             state_cache.add_error(f"Cache save error {ticker}: {str(e)}")
                             continue

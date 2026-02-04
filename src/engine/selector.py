@@ -36,7 +36,20 @@ class StrategySelector:
                 
             for strategy in self.strategies:
                 # ENFORCE CONSTRAINT: Penny Breakout is ONLY for stocks < $5.00
-                current_price = df['Close'].iloc[-1]
+                last_row = df.iloc[-1]
+                
+                # Robustly extract price as a single float
+                if isinstance(last_row, pd.Series):
+                    # If multiple columns named 'Close', last_row['Close'] might be a Series
+                    price_val = last_row['Close']
+                    if hasattr(price_val, 'iloc'):
+                        current_price = float(price_val.iloc[0])
+                    else:
+                        current_price = float(price_val)
+                else:
+                    # Fallback for unexpected shapes
+                    current_price = float(last_row['Close'])
+                
                 if strategy.name == "Penny Breakout" and current_price >= 5.0:
                     continue
                 
