@@ -15,16 +15,21 @@ class VolumeStrategy(BaseStrategy):
         
         # Calculate Volume SMA
         df['Vol_SMA'] = df['Volume'].rolling(window=self.volume_ma).mean()
+        # Ensure we are dealing with Series even if yfinance returns multi-column
+        vol = df['Volume'].squeeze()
+        ma = df['Vol_SMA'].squeeze()
         
         # Price change
-        df['Price_Change'] = df['Close'].pct_change()
+        df['Price_Change'] = df['Close'].squeeze().pct_change()
         
         # Signal logic
         df['signal'] = Signal.NEUTRAL
         df['confidence'] = 0.0
         
         # Volume spike: current volume > threshold * average
-        volume_spike = df['Volume'] > (df['Vol_SMA'] * self.spike_threshold)
+        vol = df['Volume'].squeeze()
+        ma = df['Vol_SMA'].squeeze()
+        volume_spike = vol > (ma * self.spike_threshold)
         
         # Bullish: Volume spike + Positive price change
         bullish_mask = volume_spike & (df['Price_Change'] > 0)
@@ -35,8 +40,9 @@ class VolumeStrategy(BaseStrategy):
         df.loc[bearish_mask, 'signal'] = Signal.BEARISH
         
         # Confidence based on spike intensity
-        df['vol_ratio'] = df['Volume'] / df['Vol_SMA']
-        df.loc[volume_spike, 'confidence'] = (df['vol_ratio'] / (self.spike_threshold * 2)).clip(0, 1.0)
+        vol_ratio = (vol / ma).squeeze()
+        df['vol_ratio'] = vol_ratio
+        df.loc[volume_spike, 'confidence'] = (vol_ratio / (self.spike_threshold * 2)).clip(0, 1.0)
         
         return df
 

@@ -96,15 +96,15 @@ function App() {
     setForecast(null);
 
     try {
-      const [hist, move] = await Promise.all([
+      const [hist, move] = await Promise.allSettled([
         api.getHistoricalData(ticker),
         api.getExpectedMove(ticker)
       ]);
-      setHistoricalData(hist);
-      setForecast(move);
+
+      if (hist.status === 'fulfilled') setHistoricalData(hist.value);
+      if (move.status === 'fulfilled') setForecast(move.value);
     } catch (err) {
       console.error('Failed to fetch details', err);
-      // Even if it fails (404), keep the modal open to show "Analyzing"
     } finally {
       setModalLoading(false);
     }
@@ -139,13 +139,63 @@ function App() {
 
       <MetricsBar metrics={metrics} />
 
-      {metrics?.last_error && (
-        <div className="glass terminal-border" style={{ padding: '0.8rem 1rem', marginBottom: '2rem', borderLeft: '4px solid var(--danger)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <ShieldCheck size={18} style={{ color: 'var(--danger)' }} />
-          <span style={{ fontSize: '0.9rem', color: 'var(--danger)', fontWeight: 'bold' }}>SYSTEM ALERT:</span>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{metrics.last_error}</span>
-        </div>
-      )}
+      {/* TERMINAL LOGS - Fixed Bottom Right */}
+      <div style={{
+        position: 'fixed',
+        bottom: '2rem',
+        right: '2rem',
+        width: '380px',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        {metrics?.is_syncing && (
+          <div className="glass terminal-border animate-fade-in" style={{ padding: '1rem', background: 'rgba(5, 5, 5, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.8rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <RefreshCw size={14} className="animate-spin text-secondary" />
+                <span style={{ fontWeight: 'bold', letterSpacing: '1px', fontSize: '0.7rem' }}>SYNCING ENGINE...</span>
+              </div>
+              <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontFamily: 'monospace' }}>
+                {Math.round((metrics.processed_tickers / metrics.total_tickers) * 100)}%
+              </span>
+            </div>
+            <div style={{ height: '3px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%',
+                width: `${(metrics.processed_tickers / metrics.total_tickers) * 100}%`,
+                background: 'var(--accent-primary)',
+                boxShadow: '0 0 10px var(--accent-primary)',
+                transition: 'width 0.5s ease-out'
+              }} />
+            </div>
+            <div style={{ marginTop: '0.8rem', fontSize: '0.65rem', color: 'var(--text-secondary)', fontFamily: 'monospace', lineHeight: '1.4' }}>
+              {`> [INFO] Ranking strategies for asset universe...`}
+              <br />
+              {`> [INFO] ${metrics.processed_tickers}/${metrics.total_tickers} complete`}
+            </div>
+          </div>
+        )}
+
+        {metrics?.last_error && (
+          <div className="glass terminal-border animate-fade-in" style={{
+            padding: '0.8rem 1rem',
+            background: 'rgba(5, 5, 5, 0.9)',
+            backdropFilter: 'blur(10px)',
+            borderLeft: '4px solid var(--danger)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <ShieldCheck size={14} style={{ color: 'var(--danger)' }} />
+              <span style={{ fontSize: '0.75rem', color: 'var(--danger)', fontWeight: 'bold' }}>SYSTEM ALERT</span>
+            </div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+              {metrics.last_error}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
         <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
@@ -234,6 +284,7 @@ function App() {
             data={historicalData}
             forecast={forecast}
             loading={modalLoading}
+            metrics={metrics}
             onClose={() => setSelectedTicker(null)}
           />
         </>

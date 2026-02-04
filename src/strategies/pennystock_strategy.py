@@ -22,24 +22,36 @@ class PennyBreakoutStrategy(BaseStrategy):
 
         # Volume Surge: Current Vol vs 20-period Avg Vol
         df['vol_ma'] = df['Volume'].rolling(window=20).mean()
-        df['vol_surge'] = df['Volume'] / df['vol_ma']
+        # Squeeze to handle potential MultiIndex
+        vol = df['Volume'].squeeze()
+        ma = df['vol_ma'].squeeze()
+        df['vol_surge'] = vol / ma
         
         # Volatility: ATR relative to price
-        df['atr'] = ta.atr(df['High'], df['Low'], df['Close'], length=14)
-        df['volatility_ratio'] = df['atr'] / df['Close']
+        close = df['Close'].squeeze()
+        high = df['High'].squeeze()
+        low = df['Low'].squeeze()
+        
+        df['atr'] = ta.atr(high, low, close, length=14)
+        df['volatility_ratio'] = df['atr'] / close
         
         # RSI for overbought/oversold catch
-        df['rsi'] = ta.rsi(df['Close'], length=14)
+        df['rsi'] = ta.rsi(close, length=14)
 
         # Signal Logic
         df['signal'] = Signal.NEUTRAL
         df['confidence'] = 0.5
 
         # Penny Breakout Bullish: High Volume + RSI < 70 + Price > MA20
-        df['ma20'] = df['Close'].rolling(window=20).mean()
+        df['ma20'] = close.rolling(window=20).mean()
         
-        bull_mask = (df['vol_surge'] > 2.5) & (df['Close'] > df['ma20']) & (df['rsi'] < 80)
-        bear_mask = (df['vol_surge'] > 2.5) & (df['Close'] < df['ma20']) & (df['rsi'] > 20)
+        # Ensure masks are Series
+        vol_surge = df['vol_surge'].squeeze()
+        rsi = df['rsi'].squeeze()
+        ma20 = df['ma20'].squeeze()
+        
+        bull_mask = (vol_surge > 2.5) & (close > ma20) & (rsi < 80)
+        bear_mask = (vol_surge > 2.5) & (close < ma20) & (rsi > 20)
 
         df.loc[bull_mask, 'signal'] = Signal.BULLISH
         df.loc[bear_mask, 'signal'] = Signal.BEARISH

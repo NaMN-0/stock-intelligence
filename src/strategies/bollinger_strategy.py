@@ -13,8 +13,11 @@ class BollingerStrategy(BaseStrategy):
     def generate_signals(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
         
+        # Squeeze to handle potential MultiIndex
+        close = df['Close'].squeeze()
+
         # Calculate Bollinger Bands
-        bbands = ta.bbands(df['Close'], length=self.length, std=self.std_dev)
+        bbands = ta.bbands(close, length=self.length, std=self.std_dev)
         if bbands is None or bbands.empty:
             df['signal'] = Signal.NEUTRAL
             df['confidence'] = 0.0
@@ -32,17 +35,20 @@ class BollingerStrategy(BaseStrategy):
         df['confidence'] = 0.0
         
         # Bullish: Price below lower band (oversold)
-        bullish_mask = (df['Close'] < df[lower_col])
+        low_band = df[lower_col].squeeze()
+        up_band = df[upper_col].squeeze()
+        
+        bullish_mask = (close < low_band)
         df.loc[bullish_mask, 'signal'] = Signal.BULLISH
         
         # Bearish: Price above upper band (overbought)
-        bearish_mask = (df['Close'] > df[upper_col])
+        bearish_mask = (close > up_band)
         df.loc[bearish_mask, 'signal'] = Signal.BEARISH
         
         # Confidence based on how far it's outside the bands
-        band_width = df[upper_col] - df[lower_col]
-        df.loc[bullish_mask, 'confidence'] = (df[lower_col] - df['Close']) / band_width
-        df.loc[bearish_mask, 'confidence'] = (df['Close'] - df[upper_col]) / band_width
+        band_width = up_band - low_band
+        df.loc[bullish_mask, 'confidence'] = (low_band - close) / band_width
+        df.loc[bearish_mask, 'confidence'] = (close - up_band) / band_width
         
         df['confidence'] = df['confidence'].clip(0, 1.0)
         

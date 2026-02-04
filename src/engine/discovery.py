@@ -24,35 +24,37 @@ class TickerDiscovery:
 
         # Massive fallback list (Top 300+ most active/major stocks)
         fallback = [
+            # Global & Crypto Fallback (24/7 Coverage)
+            "BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD", "XRP-USD", "ADA-USD",
+            "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS", "SBI-N.NS",
             "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META", "BRK-B", "UNH", "V", 
-            "JNJ", "WMT", "JPM", "PG", "MA", "LLY", "CVX", "HD", "ABBV", "KO", 
+            "JNJ", "WMT", "JPM", "PG", "MA", "LLY", "CVX", "HD", "KO", 
             "AVGO", "PEP", "ORCL", "MRK", "BAC", "COST", "TMO", "PFE", "ADBE", "ABT", 
             "CSCO", "NKE", "MCD", "DIS", "WFC", "CRM", "VZ", "AMD", "PM", "T", 
             "TXN", "DHR", "INTC", "HON", "UPS", "NEE", "MS", "RTX", "LOW", "IBM", 
-            "COP", "CVS", "CAT", "AXP", "AMAT", "DE", "GE", "LMT", "GS", "INTU", 
+            "AMAT", "DE", "GE", "LMT", "GS", "INTU", 
             "PLD", "BLK", "BKNG", "TJX", "MDLZ", "ADP", "CI", "ABNB", "GILD", "SYK", 
-            "PANW", "SNPS", "REGN", "ISRG", "ADI", "LRCX", "VRTX", "EQIX", "CDNS", "EL", 
-            "MU", "SLB", "ZTS", "KLAC", "EOG", "BSX", "AMT", "HUM", "C", "MO", 
+            "PANW", "SNPS", "REGN", "ISRG", "ADI", "VRTX", "EQIX", "CDNS", "EL", 
+            "MU", "SLB", "ZTS", "EOG", "BSX", "AMT", "HUM", "C", "MO", 
             "PYPL", "LULU", "MAR", "CME", "MPC", "AON", "TGT", "ADSK", "ORLY", "PH", 
-            "PGR", "CTAS", "MCK", "MARA", "RIOT", "COIN", "MSTR", "SOXL", "TQQQ", "SQ",
-            "MVIS", "MULN", "GNS", "BBI", "AMC", "GME", "BB", "NKLA", "AAL", "CCL",
-            "DAL", "UAL", "SAVE", "JETS", "XOM", "BP", "SHEL", "TTE", "VLO", "PSX",
+            "PGR", "CTAS", "MCK", "MARA", "RIOT", "COIN", "MSTR", "SOXL", "TQQQ",
+            "MVIS", "AMC", "GME", "BB", "AAL", "CCL",
+            "DAL", "UAL", "JETS", "XOM", "BP", "SHEL", "TTE", "VLO", "PSX",
             "OXY", "DVN", "HAL", "BKR", "KMI", "WMB", "OKE", "MPW", "RITM", "NLY",
-            "AGNC", "STWD", "BX", "KRR", "APO", "FIG", "KKR", "TROW", "BEN", "STT",
-            "BK", "AMP", "PRU", "MET", "AFL", "ALL", "TRV", "CB", "PGR", "MTB",
+            "AGNC", "STWD", "BX", "APO", "FIG", "KKR", "TROW", "BEN", "STT",
+            "BK", "AMP", "PRU", "MET", "AFL", "ALL", "TRV", "CB", "MTB",
             "FITB", "HBAN", "KEY", "RF", "CFG", "TFC", "PNC", "USB", "SCHW", "TD",
-            "RY", "BMO", "BNS", "CM", "HSBC", "SAN", "BBVA", "ING", "CS", "DB",
+            "RY", "BMO", "BNS", "CM", "HSBC", "SAN", "BBVA", "ING",
             "UBS", "LYG", "BCS", "NWG", "RELI", "INFY", "WIT", "HDB", "IBN", "TSM",
             "ASML", "BABA", "JD", "PDD", "BIDU", "NTES", "TME", "IQ", "BILI", "XPEV",
             "LI", "NIO", "BYDDF", "HMC", "TM", "STLA", "RACE", "F", "GM", "LCID",
-            "RIVN", "WKHS", "QS", "CHPT", "BLNK", "EVGO", "PLUG", "FCEL", "BE",
-            "NEE", "DUK", "SO", "D", "AEP", "EXC", "SRE", "XEL", "ED", "PEG",
+            "RIVN", "WKHS", "QS", "CHPT", "BLNK", "EVGO", "PLUG", "BE",
+            "DUK", "SO", "D", "AEP", "EXC", "SRE", "XEL", "ED", "PEG",
             "PCG", "FE", "WEC", "ES", "AWK", "VST", "TLN", "CEG", "NET", "OKTA",
             "CRWD", "ZS", "DDOG", "SNOW", "PLTR", "AI", "PATH", "U", "RBLX", "SE",
-            "MELI", "SHOP", "SQ", "PYPL", "AFRM", "UPST", "SOFI", "HOOD", "COIN", "MARA",
-            "RIOT", "HUT", "HIVE", "BITF", "CLSK", "WULF", "MSTR", "DKNG", "PENN", "WYNN",
-            "LVS", "MLCO", "CZR", "MGM", "HLT", "MAR", "H", "BKNG", "EXPE", "TRIP",
-            "ABNB", "UBER", "LYFT", "DASH", "W", "CHWY", "ETSY", "EBAY"
+            "MELI", "SHOP", "AFRM", "UPST", "SOFI", "HOOD", "HUT", "HIVE", "BITF", "CLSK", "WULF", "DKNG", "PENN", "WYNN",
+            "LVS", "MLCO", "CZR", "MGM", "HLT", "H", "EXPE", "TRIP",
+            "UBER", "LYFT", "DASH", "W", "CHWY", "ETSY", "EBAY"
         ]
 
         for url, table_index, col_name in sources:
@@ -92,22 +94,45 @@ class TickerDiscovery:
                 chunk = pool[i:i + chunk_size]
                 try:
                     data = await asyncio.to_thread(yf.download, tickers=chunk, period="5d", interval="1d", progress=False, group_by="ticker")
-                    if data.empty: continue
+                    if data is None or data.empty: continue
 
                     for ticker in chunk:
                         try:
-                            df = data[ticker] if len(chunk) > 1 else data
+                            if len(chunk) > 1:
+                                if ticker not in data.columns.get_level_values(0):
+                                    continue
+                                df = data[ticker]
+                            else:
+                                df = data
                             if df.empty or len(df) < 2: continue
                             
                             last = df.iloc[-1]
                             prev = df.iloc[-2]
-                            price = float(last['Close'])
+                            price_val = last['Close']
+                            price = float(price_val.iloc[0] if hasattr(price_val, 'iloc') else price_val)
+                            
                             # Lowered floor for penny stocks
                             if price < 0.05 or math.isnan(price): continue
                             
-                            volat = (last['High'] - last['Low']) / price if price > 0 else 0
-                            v_ratio = last['Volume'] / df['Volume'].mean() if df['Volume'].mean() > 0 else 1
-                            gap = abs(last['Open'] - prev['Close']) / prev['Close'] if prev['Close'] > 0 else 0
+                            high_val = last['High']
+                            low_val = last['Low']
+                            high = float(high_val.iloc[0] if hasattr(high_val, 'iloc') else high_val)
+                            low = float(low_val.iloc[0] if hasattr(low_val, 'iloc') else low_val)
+                            
+                            volat = (high - low) / price if price > 0 else 0
+                            
+                            vol_val = last['Volume']
+                            vol = float(vol_val.iloc[0] if hasattr(vol_val, 'iloc') else vol_val)
+                            avg_vol = df['Volume'].squeeze().mean()
+                            
+                            v_ratio = vol / avg_vol if avg_vol > 0 else 1
+                            
+                            prev_close_val = prev['Close']
+                            prev_close = float(prev_close_val.iloc[0] if hasattr(prev_close_val, 'iloc') else prev_close_val)
+                            open_val = last['Open']
+                            curr_open = float(open_val.iloc[0] if hasattr(open_val, 'iloc') else open_val)
+                            
+                            gap = abs(curr_open - prev_close) / prev_close if prev_close > 0 else 0
                             
                             # For penny stocks, volatility and volume ratio are weighted higher
                             if price < 5.0:

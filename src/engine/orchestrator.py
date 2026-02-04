@@ -18,32 +18,45 @@ class ServiceOrchestrator:
         self.running = False
 
     async def start(self):
-        global tickers
-        self.running = True
-        logger.info("Starting ServiceOrchestrator")
-        
-        # 0. Initial Discovery
-        await self.run_discovery()
+        try:
+            global tickers
+            self.running = True
+            logger.info("Starting ServiceOrchestrator")
+            
+            # 0. Initial Discovery
+            state_cache.set_syncing(True)
+            await self.run_discovery()
 
-        # 1. Initial data fetch and strategy selection
-        logger.info(f"Performing initial setup for {len(tickers)} tickers...")
-        await asyncio.to_thread(self.data_manager.fetch_all, tickers)
-        
-        logger.info(f"Executing strategy ranking (this may take a few minutes for {len(tickers)} tickers)...")
-        await asyncio.to_thread(self.selector.select_best_strategies, tickers)
-        
-        # 2. Initial signal generation
-        logger.info("Generating initial signals...")
-        await self.update_all_intelligence()
-        
-        # 3. Start live price monitor
-        asyncio.create_task(self.live_monitor.start())
-        
-        # 4. Start intelligence loop
-        asyncio.create_task(self.intelligence_loop())
+            # 1. Initial data fetch and strategy selection
+            logger.info(f"Performing initial setup for {len(tickers)} tickers...")
+            await asyncio.to_thread(self.data_manager.fetch_all, tickers)
+            
+            logger.info(f"Executing strategy ranking (this may take a few minutes for {len(tickers)} tickers)...")
+            await asyncio.to_thread(self.selector.select_best_strategies, tickers)
+            
+            # 2. Initial signal generation
+            logger.info("Generating initial signals...")
+            await self.update_all_intelligence()
+            
+            state_cache.set_syncing(False)
+            
+            # 3. Start live price monitor
+            asyncio.create_task(self.live_monitor.start())
+            
+            # 4. Start intelligence loop
+            asyncio.create_task(self.intelligence_loop())
 
-        # 5. Start periodic discovery loop to grow universe incrementally
-        asyncio.create_task(self.discovery_loop())
+            # 5. Start periodic discovery loop to grow universe incrementally
+            # Immediately trigger an expansion if we just finished the initial small batch
+            if len(tickers) <= 65: 
+                 logger.info("Initial processing complete. Expanding universe...")
+                 asyncio.create_task(self.run_discovery())
+                 
+            asyncio.create_task(self.discovery_loop())
+        except Exception as e:
+            logger.error(f"CRITICAL: ServiceOrchestrator failed to start: {e}")
+            state_cache.add_error(f"Engine Startup Crash: {str(e)}")
+            self.running = False
 
     async def run_discovery(self):
         """Runs the ticker discovery process and updates the global tickers list."""
@@ -76,8 +89,8 @@ class ServiceOrchestrator:
         """Periodically runs discovery to find new high-potential tickers."""
         while self.running:
             try:
-                # Wait 30 minutes between discovery runs
-                await asyncio.sleep(1800)
+                # Wait 10 minutes between discovery runs for faster growth
+                await asyncio.sleep(600)
                 if MarketHours.get_market_session() != "closed":
                     logger.info("Running periodic ticker discovery...")
                     await self.run_discovery()

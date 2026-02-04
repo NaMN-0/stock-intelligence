@@ -14,12 +14,15 @@ class EMAStrategy(BaseStrategy):
     def generate_signals(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
         
+        # Squeeze to handle potential MultiIndex
+        close = df['Close'].squeeze()
+
         # Calculate EMA
-        df[f'EMA_{self.fast_ema}'] = ta.ema(df['Close'], length=self.fast_ema)
-        df[f'EMA_{self.slow_ema}'] = ta.ema(df['Close'], length=self.slow_ema)
+        df[f'EMA_{self.fast_ema}'] = ta.ema(close, length=self.fast_ema)
+        df[f'EMA_{self.slow_ema}'] = ta.ema(close, length=self.slow_ema)
         
         # Calculate RSI
-        df['RSI'] = ta.rsi(df['Close'], length=self.rsi_period)
+        df['RSI'] = ta.rsi(close, length=self.rsi_period)
         
         # Signal logic
         df['signal'] = Signal.NEUTRAL

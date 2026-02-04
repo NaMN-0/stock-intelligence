@@ -1,6 +1,7 @@
 from typing import Dict, Any, Optional
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from src.core.logger import logger
 
 class TickerState(BaseModel):
     ticker: str
@@ -12,16 +13,39 @@ class TickerState(BaseModel):
 
 class SystemMetrics(BaseModel):
     total_tickers: int = 0
+    processed_tickers: int = 0
+    is_syncing: bool = False
     data_processed_mb: float = 0.0
     errors_count: int = 0
     uptime_seconds: float = 0.0
     last_error: Optional[str] = None
-    start_time: datetime = datetime.now()
+    start_time: datetime = Field(default_factory=datetime.now)
+
+from src.core.database import DatabaseManager
 
 class StateCache:
     def __init__(self):
         self.tickers: Dict[str, TickerState] = {}
         self.metrics = SystemMetrics()
+        self.db = DatabaseManager()
+        self._load_from_db()
+
+    def _load_from_db(self):
+        """Restores state and metrics from SQL on startup."""
+        try:
+            persisted_states = self.db.load_all_ticker_states()
+            for ticker, state_data in persisted_states.items():
+                self.tickers[ticker] = TickerState(**state_data)
+            
+            persisted_metrics = self.db.load_metrics()
+            if persisted_metrics:
+                for k, v in persisted_metrics.items():
+                    setattr(self.metrics, k, v)
+            
+            self.metrics.total_tickers = len(self.tickers)
+            logger.info(f"Restored {len(self.tickers)} ticker states from database.")
+        except Exception as e:
+            logger.error(f"Failed to restore state from DB: {e}")
 
     def _ensure_ticker(self, ticker: str) -> TickerState:
         if ticker not in self.tickers:
@@ -32,26 +56,45 @@ class StateCache:
     def add_error(self, error_msg: str):
         self.metrics.errors_count += 1
         self.metrics.last_error = f"[{datetime.now().strftime('%H:%M:%S')}] {error_msg}"
+        self.db.save_metrics(self.get_metrics())
 
     def track_data(self, size_bytes: int):
         self.metrics.data_processed_mb += size_bytes / (1024 * 1024)
+        self.db.save_metrics(self.get_metrics())
 
     def update_price(self, ticker: str, price: float):
         state = self._ensure_ticker(ticker)
         state.last_price = price
         state.last_update = datetime.now()
+        # Price updates are too frequent for DB; we'll rely on periodic strategy/signal saves
+        # but we could save here if needed.
 
     def update_strategy(self, ticker: str, strategy_name: str):
         state = self._ensure_ticker(ticker)
         state.best_strategy = strategy_name
+        self.db.save_ticker_state(ticker, state.dict())
 
     def update_signal(self, ticker: str, signal: Dict[str, Any]):
         state = self._ensure_ticker(ticker)
         state.last_signal = signal
+        self.db.save_ticker_state(ticker, state.dict())
 
     def update_forecast(self, ticker: str, forecast: Dict[str, Any]):
         state = self._ensure_ticker(ticker)
         state.expected_move = forecast
+        self.db.save_ticker_state(ticker, state.dict())
+
+    def set_syncing(self, value: bool):
+        self.metrics.is_syncing = value
+        if value:
+            self.metrics.processed_tickers = 0
+        self.db.save_metrics(self.get_metrics())
+
+    def increment_processed(self):
+        self.metrics.processed_tickers += 1
+        # Save metrics every 5 tickers to avoid DB overhead during bulk setup
+        if self.metrics.processed_tickers % 5 == 0:
+            self.db.save_metrics(self.get_metrics())
 
     def get_state(self, ticker: str) -> Optional[TickerState]:
         return self.tickers.get(ticker)

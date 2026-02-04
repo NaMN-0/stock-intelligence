@@ -1,12 +1,12 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
 import { X, Target, AlertCircle, AlertTriangle, ShieldCheck, RefreshCw, Activity } from 'lucide-react';
 
-const TickerDetails = ({ ticker, data, forecast, loading, onClose }) => {
+const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) => {
     if (!ticker) return null;
 
     // Ensure data is an array to prevent "is not iterable" errors in Recharts
     const chartData = Array.isArray(data) ? data : [];
-    
+
     // Custom Tick Formatter for better intuition
     const formatXAxis = (tickItem) => {
         try {
@@ -132,7 +132,7 @@ const TickerDetails = ({ ticker, data, forecast, loading, onClose }) => {
                         <span style={{ fontWeight: '600' }}>EXPECTED RANGE</span>
                     </div>
                     <p style={{ fontSize: '1.2rem' }}>
-                        {forecast?.expected_range?.min ? `$${forecast.expected_range.min.toFixed(2)}` : 'ANALYZING...'} 
+                        {forecast?.expected_range?.min ? `$${forecast.expected_range.min.toFixed(2)}` : 'ANALYZING...'}
                         {forecast?.expected_range?.max ? ` - $${forecast.expected_range.max.toFixed(2)}` : ''}
                     </p>
                 </div>
@@ -163,8 +163,17 @@ const TickerDetails = ({ ticker, data, forecast, loading, onClose }) => {
                     <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                         {!forecast ? (
                             <div style={{ fontStyle: 'italic', fontSize: '0.8rem' }}>
-                                <RefreshCw size={12} className="animate-spin" style={{ display: 'inline', marginRight: '5px' }} />
-                                Engine is processing historical data. Please try again in 30s.
+                                {metrics?.is_syncing ? (
+                                    <>
+                                        <RefreshCw size={12} className="animate-spin" style={{ display: 'inline', marginRight: '5px' }} />
+                                        Engine is processing historical data. Please try again in 30s.
+                                    </>
+                                ) : (
+                                    <>
+                                        <AlertTriangle size={12} style={{ display: 'inline', marginRight: '5px' }} />
+                                        Forecast currently unavailable for this asset class.
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <>

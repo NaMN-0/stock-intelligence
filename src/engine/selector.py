@@ -1,3 +1,5 @@
+# REBUILT - Diagnostics Added
+import pandas as pd
 from typing import Dict, List, Any, Type
 from src.strategies.base import BaseStrategy
 from src.strategies.ema_strategy import EMAStrategy
@@ -21,54 +23,65 @@ class StrategySelector:
 
     def select_best_strategies(self, tickers: List[str]):
         """Runs backtests for all tickers and selects the best performing strategy for each."""
+        logger.info(f"Starting strategy ranking for {len(tickers)} assets. PD loaded: {'pd' in globals()}")
         total = len(tickers)
         for i, ticker in enumerate(tickers):
-            if (i + 1) % 50 == 0:
-                logger.info(f"Ranking Progress: {i + 1}/{total} tickers evaluated.")
+            try:
+                if (i + 1) % 50 == 0:
+                    logger.info(f"Ranking Progress: {i + 1}/{total} tickers evaluated.")
 
-            best_strategy = None
-            best_score = -float('inf')
-            
-            # Use 1h timeframe for selection by default
-            df = self.data_manager.get_historical_data(ticker, "1h")
-            if df is None or df.empty:
-                continue
+                best_strategy = None
+                best_score = -float('inf')
                 
-            for strategy in self.strategies:
-                # ENFORCE CONSTRAINT: Penny Breakout is ONLY for stocks < $5.00
-                last_row = df.iloc[-1]
-                
-                # Robustly extract price as a single float
-                if isinstance(last_row, pd.Series):
-                    # If multiple columns named 'Close', last_row['Close'] might be a Series
-                    price_val = last_row['Close']
-                    if hasattr(price_val, 'iloc'):
-                        current_price = float(price_val.iloc[0])
+                # Use 1h timeframe for selection by default
+                df = self.data_manager.get_historical_data(ticker, "1h")
+                if df is None or df.empty:
+                    # Update progress metrics even if skipped
+                    state_cache.increment_processed()
+                    continue
+                    
+                for strategy in self.strategies:
+                    # ENFORCE CONSTRAINT: Penny Breakout is ONLY for stocks < $5.00
+                    last_row = df.iloc[-1]
+                    
+                    # Robustly extract price as a single float
+                    if isinstance(last_row, pd.Series):
+                        # If multiple columns named 'Close', last_row['Close'] might be a Series
+                        price_val = last_row['Close']
+                        if hasattr(price_val, 'iloc'):
+                            current_price = float(price_val.iloc[0])
+                        else:
+                            current_price = float(price_val)
                     else:
-                        current_price = float(price_val)
-                else:
-                    # Fallback for unexpected shapes
-                    current_price = float(last_row['Close'])
-                
-                if strategy.name == "Penny Breakout" and current_price >= 5.0:
-                    continue
-                
-                # ENFORCE CONSTRAINT: Other strategies are for stocks >= $1.00 (optional but good for stability)
-                if strategy.name != "Penny Breakout" and current_price < 1.0:
-                    continue
+                        # Fallback for unexpected shapes
+                        current_price = float(last_row['Close'])
+                    
+                    if strategy.name == "Penny Breakout" and current_price >= 5.0:
+                        continue
+                    
+                    # ENFORCE CONSTRAINT: Other strategies are for stocks >= $1.00 (optional but good for stability)
+                    if strategy.name != "Penny Breakout" and current_price < 1.0:
+                        continue
 
-                evaluator = StrategyEvaluator(strategy)
-                metrics = evaluator.evaluate(df)
+                    evaluator = StrategyEvaluator(strategy)
+                    metrics = evaluator.evaluate(df)
+                    
+                    if "error" not in metrics:
+                        score = metrics.get("score", 0)
+                        if score > best_score:
+                            best_score = score
+                            best_strategy = strategy.name
                 
-                if "error" not in metrics:
-                    score = metrics.get("score", 0)
-                    if score > best_score:
-                        best_score = score
-                        best_strategy = strategy.name
-            
-            if best_strategy:
-                logger.debug(f"Best strategy for {ticker}: {best_strategy} (Score: {best_score:.4f})")
-                state_cache.update_strategy(ticker, best_strategy)
+                if best_strategy:
+                    logger.debug(f"Best strategy for {ticker}: {best_strategy} (Score: {best_score:.4f})")
+                    state_cache.update_strategy(ticker, best_strategy)
+                
+                # Update progress metrics
+                state_cache.increment_processed()
+            except Exception as e:
+                logger.error(f"Error ranking {ticker}: {e}")
+                state_cache.increment_processed()
+                continue
 
     def get_strategy_instance(self, strategy_name: str) -> BaseStrategy:
         for s in self.strategies:

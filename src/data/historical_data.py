@@ -97,14 +97,19 @@ class HistoricalDataManager:
                     logger.debug(f"Fetching {tf} data chunk: {i}/{len(tickers)}...")
                     data = yf.download(chunk, period=period, interval=interval, progress=False, group_by="ticker")
                     
-                    if data.empty: continue
+                    if data is None or data.empty: continue
                     
                     # Track total bytes processed (estimate from dataframe memory usage)
                     state_cache.track_data(data.memory_usage(deep=True).sum())
 
                     for ticker in chunk:
                         try:
-                            ticker_data = data[ticker] if len(chunk) > 1 else data
+                            if len(chunk) > 1:
+                                if ticker not in data.columns.get_level_values(0):
+                                    continue
+                                ticker_data = data[ticker]
+                            else:
+                                ticker_data = data
                             if ticker_data.empty or ticker_data.isna().all().all():
                                 continue
                                 
