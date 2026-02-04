@@ -1,0 +1,22 @@
+app:
+  name: "Stock Intelligence Server"
+  version: "1.0.0"
+
+market:
+  region: "US"
+  timezone: "America/New_York"
+  polling_interval_seconds: 15
+  historical_period_months: 6
+
+data:
+  cache_dir: "data_cache"
+  timeframes:
+    - "1m"
+    - "5m"
+    - "15m"
+    - "1h"
+    - "1d"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
