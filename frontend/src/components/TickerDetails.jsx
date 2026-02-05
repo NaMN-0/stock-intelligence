@@ -173,7 +173,7 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                                     <span className="mono" style={{ color: highlightColor }}>HIGH</span>
                                 </div>
                                 <div style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.03)', fontSize: '0.7rem', color: 'var(--text-dim)', lineHeight: '1.4' }}>
-                                    Our AI suggests a <strong style={{ color: 'white' }}>{forecast.bias.toUpperCase()}</strong> trend. Watch for potential entry around <strong style={{ color: 'white' }}>{formatPrice(ticker, forecast.expected_range.min)}</strong>.
+                                    Our AI suggests a <strong style={{ color: 'white' }}>{(forecast.bias || 'neutral').toUpperCase()}</strong> trend. Watch for potential entry around <strong style={{ color: 'white' }}>{formatPrice(ticker, forecast.expected_range?.min || 0)}</strong>.
                                 </div>
                             </div>
                         )}
