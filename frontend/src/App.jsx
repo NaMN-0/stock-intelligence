@@ -491,14 +491,76 @@ function App() {
         ))}
       </div>
 
-      <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
-        <div style={{ position: 'relative', flex: 1, maxWidth: '450px' }}>
+      {/* Signal Tabs */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setFilter('all')}
+          className="glass mono"
+          style={{
+            padding: '0.8rem 1.5rem',
+            borderRadius: '100px',
+            fontSize: '0.75rem',
+            fontWeight: '900',
+            color: filter === 'all' ? '#000' : 'var(--text-dim)',
+            background: filter === 'all' ? 'var(--text-muted)' : 'transparent',
+            border: filter === 'all' ? '1px solid var(--text-muted)' : '1px solid var(--border-glass)',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            minWidth: '100px'
+          }}
+        >
+          VIEW ALL
+        </button>
+        <button
+          onClick={() => setFilter('bullish')}
+          className="glass mono"
+          style={{
+            padding: '0.8rem 1.5rem',
+            borderRadius: '100px',
+            fontSize: '0.75rem',
+            fontWeight: '900',
+            color: filter === 'bullish' ? '#000' : 'var(--text-dim)',
+            background: filter === 'bullish' ? 'var(--success)' : 'transparent',
+            border: filter === 'bullish' ? '1px solid var(--success)' : '1px solid var(--border-glass)',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            minWidth: '140px',
+            boxShadow: filter === 'bullish' ? '0 0 15px rgba(39, 201, 63, 0.4)' : 'none'
+          }}
+        >
+          <TrendingUp size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} />
+          BULLISH GEMS
+        </button>
+        <button
+          onClick={() => setFilter('bearish')}
+          className="glass mono"
+          style={{
+            padding: '0.8rem 1.5rem',
+            borderRadius: '100px',
+            fontSize: '0.75rem',
+            fontWeight: '900',
+            color: filter === 'bearish' ? '#000' : 'var(--text-dim)',
+            background: filter === 'bearish' ? 'var(--danger)' : 'transparent',
+            border: filter === 'bearish' ? '1px solid var(--danger)' : '1px solid var(--border-glass)',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            minWidth: '140px',
+            boxShadow: filter === 'bearish' ? '0 0 15px rgba(255, 95, 86, 0.4)' : 'none'
+          }}
+        >
+          <TrendingDown size={14} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} />
+          BEARISH RISKS
+        </button>
+      </div>
+
+      <div style={{ marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
+        <div style={{ position: 'relative', width: '100%' }}>
           <div style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
             <ScanSearch size={18} />
           </div>
           <input
             type="text"
-            placeholder="FILTER ASSET UNIVERSE..."
+            placeholder="Search assets..."
             className="glass mono"
             style={{
               padding: '1.1rem 1.25rem 1.1rem 3.5rem',
@@ -514,111 +576,6 @@ function App() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-        </div>
-
-        <div className="glass terminal-border" style={{ display: 'flex', padding: '6px', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
-          <button
-            onClick={() => setFilter('all')}
-            className="mono"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              background: filter === 'all' ? 'var(--accent-primary)' : 'transparent',
-              color: filter === 'all' ? '#000' : 'var(--text-dim)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: '900',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              letterSpacing: '1px'
-            }}
-          >
-            ALL
-          </button>
-          <button
-            onClick={() => setFilter('bullish')}
-            className="mono"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              background: filter === 'bullish' ? 'var(--success)' : 'transparent',
-              color: filter === 'bullish' ? '#000' : 'var(--text-dim)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: '900',
-              transition: 'all 0.3s'
-            }}
-          >
-            BULL
-          </button>
-          <button
-            onClick={() => setFilter('bearish')}
-            className="mono"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              background: filter === 'bearish' ? 'var(--danger)' : 'transparent',
-              color: filter === 'bearish' ? '#000' : 'var(--text-dim)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: '900',
-              transition: 'all 0.3s'
-            }}
-          >
-            BEAR
-          </button>
-          <button
-            onClick={() => setFilter('neutral')}
-            className="mono"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              background: filter === 'neutral' ? 'var(--text-muted)' : 'transparent',
-              color: filter === 'neutral' ? 'white' : 'var(--text-dim)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: '900',
-              transition: 'all 0.3s'
-            }}
-          >
-            NEUT
-          </button>
-          <div style={{ width: '1px', background: 'var(--border-glass)', margin: '0 8px' }} />
-          <button
-            onClick={() => setFilter('penny')}
-            className="mono"
-            style={{
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              background: filter === 'penny' ? 'var(--accent-secondary)' : 'transparent',
-              color: filter === 'penny' ? 'white' : 'var(--accent-secondary)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '0.75rem',
-              fontWeight: '900',
-              transition: 'all 0.3s'
-            }}
-          >
-            LOW_VAL
-          </button>
         </div>
       </div>
 
