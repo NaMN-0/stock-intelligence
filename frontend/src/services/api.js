@@ -15,6 +15,12 @@ export const api = {
     return res.json();
   },
 
+  async enhanceUniverse() {
+    const res = await fetch(`${BASE_URL}/tickers/enhance`, { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to enhance universe');
+    return res.json();
+  },
+
   async getSystemMetrics() {
     const res = await fetch(`${BASE_URL}/system-metrics`);
     if (!res.ok) throw new Error('Failed to fetch system metrics');

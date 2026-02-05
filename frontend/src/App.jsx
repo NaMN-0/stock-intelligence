@@ -138,6 +138,27 @@ function App() {
     }
   };
 
+  const handleEnhanceUniverse = async () => {
+    if (confirm('Initiate autonomous universe expansion? The neural engine will scan for high-volatility targets.')) {
+      setModalLoading(true);
+      try {
+        const res = await api.enhanceUniverse();
+        if (res.status === 'success') {
+          alert(res.message);
+          const updated = await api.getTickers();
+          setTickers(updated);
+        } else {
+          alert(res.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Improvement sequence failed.');
+      } finally {
+        setModalLoading(false);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', background: '#000' }}>
@@ -206,6 +227,30 @@ function App() {
             }} />
             CORE STATUS: NOMINAL
           </div>
+
+          <button
+            onClick={handleEnhanceUniverse}
+            className="glass mono"
+            disabled={modalLoading}
+            style={{
+              padding: '0.6rem 1.2rem',
+              borderRadius: '100px',
+              fontSize: '0.7rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              fontWeight: '900',
+              letterSpacing: '1px',
+              border: '1px solid var(--accent-primary)',
+              color: 'var(--accent-primary)',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              background: 'rgba(0, 255, 213, 0.05)'
+            }}
+          >
+            <Zap size={14} />
+            NEURAL ENHANCE
+          </button>
 
           <button
             onClick={() => setShowUniverseModal(true)}

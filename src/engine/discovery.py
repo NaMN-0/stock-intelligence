@@ -156,3 +156,65 @@ class TickerDiscovery:
         except Exception as e:
             logger.error(f"Universe discovery failed: {e}")
             return pool[:limit]
+
+    @staticmethod
+    async def discover_volatile_movers(limit: int = 15) -> List[str]:
+        """
+        Scans specifically for high-volatility, high-volume 'movers' in the last session.
+        This is used for the 'Neural Enhance' feature.
+        """
+        logger.info("Scanning for high-precision volatility targets...")
+        
+        # Focus on a balanced mix of major and mid-cap movers
+        scan_pool = [
+            "AAPL", "TSLA", "NVDA", "AMD", "NFLX", "META", "AMZN", "GOOGL", "MSFT", "BA",
+            "MSTR", "COIN", "MARA", "RIOT", "CLSK", "BITF", "HIVE", "WULF", "HUT", "W",
+            "DKNG", "PLTR", "SOFI", "AI", "PATH", "U", "RBLX", "SHOP", "AFRM", "UPST",
+            "HOOD", "BABA", "PDD", "JD", "NIO", "XPEV", "LI", "TSM", "ARM", "SMCI",
+            "BTC-USD", "ETH-USD", "SOL-USD", "AVAX-USD", "DOT-USD", "MATIC-USD"
+        ]
+        
+        try:
+            results: List[Tuple[str, float]] = []
+            data = await asyncio.to_thread(yf.download, tickers=scan_pool, period="2d", interval="1d", progress=False, group_by="ticker")
+            
+            if data is None or data.empty:
+                return []
+
+            for ticker in scan_pool:
+                try:
+                    if ticker not in data.columns.get_level_values(0): continue
+                    df = data[ticker]
+                    if len(df) < 2: continue
+                    
+                    last = df.iloc[-1]
+                    prev = df.iloc[-2]
+                    
+                    price = float(last['Close'].iloc[0] if hasattr(last['Close'], 'iloc') else last['Close'])
+                    high = float(last['High'].iloc[0] if hasattr(last['High'], 'iloc') else last['High'])
+                    low = float(last['Low'].iloc[0] if hasattr(last['Low'], 'iloc') else last['Low'])
+                    vol = float(last['Volume'].iloc[0] if hasattr(last['Volume'], 'iloc') else last['Volume'])
+                    
+                    # Volatility: (High - Low) / Price
+                    v_score = (high - low) / price if price > 0 else 0
+                    
+                    # Momentum: Change from prev close
+                    prev_close = float(prev['Close'].iloc[0] if hasattr(prev['Close'], 'iloc') else prev['Close'])
+                    m_score = abs(price - prev_close) / prev_close if prev_close > 0 else 0
+                    
+                    # Volume Weighting (Relative to recent average would be better, but we simplify here)
+                    # We use absolute volume to favor liquid assets
+                    vol_score = math.log10(vol + 1) / 10 if vol > 0 else 0
+                    
+                    final_score = (v_score * 0.5) + (m_score * 0.4) + (vol_score * 0.1)
+                    
+                    if not math.isnan(final_score):
+                        results.append((ticker, final_score))
+                except Exception: continue
+                
+            results.sort(key=lambda x: x[1], reverse=True)
+            return [t[0] for t in results[:limit]]
+            
+        except Exception as e:
+            logger.error(f"Volatility discovery failed: {e}")
+            return []

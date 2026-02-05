@@ -10,6 +10,8 @@ from src.core.logger import logger
 from src.utils.serialization import sanitize_json_data
 
 router = APIRouter()
+from src.engine.discovery import TickerDiscovery
+
 data_manager = HistoricalDataManager()
 
 # Registry for orchestrator to avoid circular imports
@@ -48,6 +50,29 @@ async def add_tickers(new_symbols: List[str]):
             asyncio.create_task(orchestrator_instance.run_discovery())
         
     return {"status": "success", "added": added, "total": len(tickers)}
+
+@router.post("/tickers/enhance")
+async def enhance_universe():
+    """Triggers autonomous discovery of high-volatility movers."""
+    try:
+        # 1. Discover volatile movers
+        movers = await TickerDiscovery.discover_volatile_movers(limit=15)
+        
+        if not movers:
+            return {"status": "no_change", "message": "No high-conviction movers found.", "added": []}
+            
+        # 2. Add them using the existing logic
+        result = await add_tickers(movers)
+        
+        return {
+            "status": "success", 
+            "message": f"Neural engine identified {len(movers)} volatile targets.",
+            "added": result["added"],
+            "total": result["total"]
+        }
+    except Exception as e:
+        logger.error(f"Enhance failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/states")
 async def get_all_states():
