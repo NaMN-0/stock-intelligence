@@ -99,6 +99,17 @@ function App() {
     }
   }, [tickers]);
 
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    if (newFilter === 'bullish') {
+      // Trigger Hyper-Live Mode for Penny/Bullish stocks
+      api.setEngineMode('HYPER_LIVE', 'bullish_penny');
+    } else {
+      // Revert to Standard Mode
+      api.setEngineMode('STANDARD');
+    }
+  };
+
   if (showLanding) {
     return <LandingPage onEnter={() => setShowLanding(false)} />;
   }
@@ -494,7 +505,7 @@ function App() {
       {/* Signal Tabs */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
         <button
-          onClick={() => setFilter('all')}
+          onClick={() => handleFilterChange('all')}
           className="glass mono"
           style={{
             padding: '0.8rem 1.5rem',
@@ -512,7 +523,7 @@ function App() {
           VIEW ALL
         </button>
         <button
-          onClick={() => setFilter('bullish')}
+          onClick={() => handleFilterChange('bullish')}
           className="glass mono"
           style={{
             padding: '0.8rem 1.5rem',
@@ -532,7 +543,7 @@ function App() {
           BULLISH GEMS
         </button>
         <button
-          onClick={() => setFilter('bearish')}
+          onClick={() => handleFilterChange('bearish')}
           className="glass mono"
           style={{
             padding: '0.8rem 1.5rem',

@@ -151,6 +151,16 @@ async def set_engine_focus(payload: Dict[str, str]):
         return {"status": "success", "message": f"Engine focus switched to {region}"}
     return {"status": "error", "message": "Orchestrator not active"}
 
+@router.post("/engine/mode")
+async def set_engine_mode(payload: Dict[str, str]):
+    """Switches engine processing mode (STANDARD, HYPER_LIVE) and focus criteria."""
+    mode = payload.get("mode", "STANDARD").upper()
+    criteria = payload.get("criteria")
+    if orchestrator_instance:
+        orchestrator_instance.set_engine_mode(mode, criteria)
+        return {"status": "success", "message": f"Engine mode switched to {mode} [{criteria}]"}
+    return {"status": "error", "message": "Orchestrator not active"}
+
 @router.get("/health")
 async def health_check():
     return sanitize_json_data({"status": "healthy", "timestamp": str(pd.Timestamp.now())})

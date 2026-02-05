@@ -41,6 +41,14 @@ export const api = {
     }).catch(e => console.error("Failed to set engine focus", e));
   },
 
+  async setEngineMode(mode, criteria = null) {
+    fetch(`${BASE_URL}/engine/mode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode, criteria })
+    }).catch(e => console.error("Failed to set engine mode", e));
+  },
+
   async getLivePrice(ticker) {
     const res = await fetch(`${BASE_URL}/live-price/${ticker}`);
     if (!res.ok) throw new Error(`Failed to fetch price for ${ticker}`);

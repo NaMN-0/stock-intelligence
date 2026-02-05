@@ -16,6 +16,8 @@ class ServiceOrchestrator:
         self.selector = StrategySelector(self.data_manager)
         self.forecaster = ForecastEngine(self.data_manager)
         self.focus_region = "US"  # Default focus
+        self.engine_mode = "STANDARD" # STANDARD or HYPER_LIVE
+        self.focus_criteria = None
         self.running = False
 
     async def start(self):
@@ -101,10 +103,18 @@ class ServiceOrchestrator:
 
     async def update_all_intelligence(self):
         """Generates signals and forecasts for all tickers."""
+    
     def set_focus_region(self, region: str):
         """Updates the engine's focus region (US, IN, CRYPTO)."""
-        logger.info(f"Engine switching focus to: {region}")
-        self.focus_region = region
+        if self.focus_region != region:
+            logger.info(f"Engine switching focus to: {region}")
+            self.focus_region = region
+    
+    def set_engine_mode(self, mode: str, criteria: str = None):
+        """Switches engine processing mode (STANDARD, HYPER_LIVE)."""
+        self.engine_mode = mode
+        self.focus_criteria = criteria
+        logger.info(f"Engine Mode Switched: {mode} [{criteria}]")
 
     def _get_ticker_region(self, ticker: str) -> str:
         t = ticker.upper()
@@ -116,9 +126,36 @@ class ServiceOrchestrator:
 
     async def update_all_intelligence(self):
         """Generates signals and forecasts, prioritizing the focused region."""
-        # Sort tickers: Focused region first
+        
+        candidates = tickers
+        
+        # HYPER_LIVE MODE: Filter strictly for the user's active view
+        if self.engine_mode == 'HYPER_LIVE' and self.focus_criteria == 'bullish_penny':
+            logger.debug(f"Hyper-Live Scan: Focusing on {self.focus_region} Penny Stocks & Bullish Gems...")
+            
+            # Filter for Region matching + (Low Price OR Bullish Signal)
+            filtered = []
+            for t in tickers:
+                if self._get_ticker_region(t) != self.focus_region:
+                    continue
+                    
+                state = state_cache.get_state(t)
+                last_price = state.last_price if state else 0
+                signal = state.last_signal['signal'] if state and state.last_signal else 'neutral'
+                
+                # Criteria: Penny Stock (<$10) OR Bullish Signal
+                if (last_price > 0 and last_price < 10) or signal == 'bullish':
+                    filtered.append(t)
+            
+            if filtered:
+                candidates = filtered
+                logger.debug(f"Engine locking onto {len(candidates)} high-priority targets.")
+            else:
+                logger.debug("No specific targets found for Hyper-Focus. Reverting to region sort.")
+
+        # Sort tickers: Focused region first (fallback if not filtered)
         sorted_tickers = sorted(
-            tickers, 
+            candidates, 
             key=lambda t: 0 if self._get_ticker_region(t) == self.focus_region else 1
         )
         
@@ -131,6 +168,8 @@ class ServiceOrchestrator:
                 strategy = self.selector.get_strategy_instance(strategy_name)
                 
                 # Get latest historical data
+                # In Hyper-Live, we might want to force refresh? 
+                # For now rely on cache freshness logic but fetch 1h data
                 df = self.data_manager.get_historical_data(ticker, "1h")
                 if df is not None and not df.empty:
                     # Generate signal
