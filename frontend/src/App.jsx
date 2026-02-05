@@ -4,7 +4,8 @@ import TickerCard from './components/TickerCard';
 import TickerDetails from './components/TickerDetails';
 import MetricsBar from './components/MetricsBar';
 import LandingPage from './components/LandingPage';
-import { Grid3X3, BarChart3, Terminal, ShieldCheck, ShieldAlert, Zap, TrendingUp, TrendingDown, Minus, RefreshCw, Plus, Globe, ScanSearch, Activity, Layers } from 'lucide-react';
+import { getMarketRegion, getMarketStatus } from './utils/marketHours';
+import { Grid3X3, BarChart3, Terminal, ShieldCheck, ShieldAlert, Zap, TrendingUp, TrendingDown, Minus, RefreshCw, Plus, Globe, ScanSearch, Activity, Layers, Coins, Flag } from 'lucide-react';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
@@ -22,6 +23,20 @@ function App() {
   const [modalLoading, setModalLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [activeMarket, setActiveMarket] = useState('US');
+  const [marketStatus, setMarketStatus] = useState({ isOpen: false, status: 'CHECKING' });
+
+  // Update market status when activeMarket changes
+  useEffect(() => {
+    const status = getMarketStatus(activeMarket);
+    setMarketStatus(status);
+
+    // Update every minute
+    const interval = setInterval(() => {
+      setMarketStatus(getMarketStatus(activeMarket));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [activeMarket]);
 
   useEffect(() => {
     const init = async (retries = 3) => {
@@ -86,6 +101,9 @@ function App() {
   }
 
   const filteredTickers = tickers.filter(t => {
+    const region = getMarketRegion(t);
+    if (region !== activeMarket) return false;
+
     const matchesSearch = t.toLowerCase().includes(search.toLowerCase());
     const tickerData = data[t];
     const isPenny = tickerData?.price > 0 && tickerData?.price < 5.0;
@@ -246,6 +264,28 @@ function App() {
               boxShadow: '0 0 10px var(--accent-primary)'
             }} />
             CORE STATUS: NOMINAL
+          </div>
+
+          <div className="glass mono" style={{
+            padding: '0.6rem 1.2rem',
+            borderRadius: '100px',
+            fontSize: '0.7rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: 'bold',
+            letterSpacing: '1px',
+            border: `1px solid ${marketStatus.isOpen ? 'var(--success)' : 'var(--text-muted)'}`,
+            color: marketStatus.isOpen ? 'var(--success)' : 'var(--text-muted)'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: marketStatus.isOpen ? 'var(--success)' : 'var(--text-muted)',
+              boxShadow: marketStatus.isOpen ? '0 0 10px var(--success)' : 'none'
+            }} />
+            {marketStatus.status.replace('_', ' ')}
           </div>
 
           <button
@@ -417,6 +457,35 @@ function App() {
             )}
           </div>
         )}
+      </div>
+
+      {/* Market Selector Tabs */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '2rem' }}>
+        {['US', 'IN', 'CRYPTO'].map(m => (
+          <button
+            key={m}
+            onClick={() => setActiveMarket(m)}
+            className="glass mono"
+            style={{
+              padding: '1rem 2rem',
+              minWidth: '120px',
+              borderRadius: '12px',
+              fontSize: '0.9rem',
+              fontWeight: '900',
+              color: activeMarket === m ? '#fff' : 'var(--text-dim)',
+              background: activeMarket === m ? 'var(--accent-primary)' : 'rgba(255,255,255,0.03)',
+              border: activeMarket === m ? '1px solid var(--accent-glow)' : '1px solid var(--border-glass)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: activeMarket === m ? '0 0 20px rgba(0, 162, 255, 0.3)' : 'none'
+            }}
+          >
+            {m === 'US' && <Flag size={14} style={{ marginRight: '8px', display: 'inline', verticalAlign: 'middle' }} />}
+            {m === 'IN' && <span style={{ marginRight: '8px', fontSize: '1.2em', verticalAlign: 'middle' }}>🇮🇳</span>}
+            {m === 'CRYPTO' && <Coins size={14} style={{ marginRight: '8px', display: 'inline', verticalAlign: 'middle' }} />}
+            {m === 'US' ? 'US MARKET' : (m === 'IN' ? 'INDIA' : 'CRYPTO')}
+          </button>
+        ))}
       </div>
 
       <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
