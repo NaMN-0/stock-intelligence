@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Shield, TrendingUp, BarChart3, ChevronRight, Globe, Cpu } from 'lucide-react';
+import { Zap, Shield, TrendingUp, BarChart3, ChevronRight, Globe, Cpu, Orbit, Layers, Database, Scan } from 'lucide-react';
 
 const LandingPage = ({ onEnter }) => {
     return (
@@ -46,20 +46,36 @@ const LandingPage = ({ onEnter }) => {
                     BETA ACCESS • v1.2.0
                 </div>
 
+                <div className="animate-fade-in" style={{
+                    width: '120px',
+                    height: '120px',
+                    margin: '0 auto 2.5rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid var(--border-glass)',
+                    borderRadius: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    boxShadow: '0 20px 50px rgba(0, 255, 213, 0.1)'
+                }}>
+                    <img src="/logo.png" alt="Quant Sourcer" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </div>
+
                 <h1 className="animate-fade-in" style={{
                     fontSize: 'clamp(3rem, 8vw, 6rem)',
                     fontWeight: '900',
                     marginBottom: '1.5rem',
                     letterSpacing: '-3px',
                     lineHeight: '0.9',
-                    background: 'linear-gradient(to bottom, #fff 40%, rgba(255,255,255,0.4))',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
+                    color: '#fff',
                     textTransform: 'uppercase'
                 }}>
-                    The Future of <br />
-                    <span style={{ color: 'var(--accent-primary)', WebkitTextFillColor: 'initial' }}>Quant Intelligence</span>
+                    QUANT <span style={{ color: 'var(--accent-primary)' }}>SOURCER</span>
                 </h1>
+                <div className="mono animate-fade-in" style={{ color: 'var(--text-dim)', letterSpacing: '8px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '3rem' }}>
+                    NEURAL MARKET INTELLIGENCE
+                </div>
 
                 <p className="animate-fade-in" style={{
                     fontSize: 'clamp(1rem, 2vw, 1.4rem)',
@@ -120,21 +136,21 @@ const LandingPage = ({ onEnter }) => {
                 }}>
                     <div className="glass terminal-border" style={{ padding: '2rem', borderRadius: '16px', textAlign: 'left' }}>
                         <div style={{ color: 'var(--accent-primary)', marginBottom: '1.5rem' }}>
-                            <Shield size={24} />
+                            <Scan size={24} />
                         </div>
                         <h3 style={{ marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '800' }}>ULTRA-LOW LATENCY</h3>
                         <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5' }}>Proprietary data ingestion engine processing global market ticks with sub-second precision.</p>
                     </div>
                     <div className="glass terminal-border" style={{ padding: '2rem', borderRadius: '16px', textAlign: 'left' }}>
                         <div style={{ color: 'var(--accent-secondary)', marginBottom: '1.5rem' }}>
-                            <Cpu size={24} />
+                            <Layers size={24} />
                         </div>
                         <h3 style={{ marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '800' }}>NEURAL SELECTION</h3>
                         <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5' }}>Machine learning models that dynamically rotate strategies based on volatility regimes.</p>
                     </div>
                     <div className="glass terminal-border" style={{ padding: '2rem', borderRadius: '16px', textAlign: 'left' }}>
                         <div style={{ color: 'var(--success)', marginBottom: '1.5rem' }}>
-                            <Globe size={24} />
+                            <Orbit size={24} />
                         </div>
                         <h3 style={{ marginBottom: '0.75rem', fontSize: '1.25rem', fontWeight: '800' }}>GLOBAL UNIVERSE</h3>
                         <p style={{ color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5' }}>Seamless coverage across US Equities, Indian NSE/BSE, and Global Crypto markets.</p>

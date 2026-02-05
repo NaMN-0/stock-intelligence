@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
-import { X, Target, AlertCircle, AlertTriangle, ShieldCheck, RefreshCw, Activity, BarChart3, Zap } from 'lucide-react';
+import { X, Target, AlertCircle, AlertTriangle, ShieldCheck, RefreshCw, Scan, BarChart3, Zap, Cpu, Orbit, Database } from 'lucide-react';
+import { formatPrice, getCurrencySymbol } from '../utils/formatters';
 
 const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) => {
     if (!ticker) return null;
@@ -47,7 +48,7 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                         <BarChart3 size={24} />
                     </div>
                     <div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: '900', letterSpacing: '1px' }}>{ticker} <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '500' }}>/ LIVE INTEL</span></h2>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '900', letterSpacing: '1px' }}>{ticker} <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '500' }}>/ LIVE {getCurrencySymbol(ticker)} INTEL</span></h2>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 'bold' }}>STRATEGY: {forecast?.strategy || 'QUANT_V2'}</span>
                             <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--text-muted)' }} />
@@ -150,25 +151,25 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                         <div className="glass terminal-border" style={{ padding: '1rem', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', marginBottom: '8px' }}>
-                                <Target size={14} />
+                                <Orbit size={14} />
                                 <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Expected Range</span>
                             </div>
                             <div className="mono" style={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                                ${forecast?.expected_range?.min?.toFixed(2) || '---'} - ${forecast?.expected_range?.max?.toFixed(2) || '---'}
-                            </div>
-                        </div>
-                        <div className="glass terminal-border" style={{ padding: '1rem', borderRadius: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', marginBottom: '8px' }}>
-                                <AlertCircle size={14} />
-                                <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Invalidation Point</span>
-                            </div>
-                            <div className="mono" style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--danger)' }}>
-                                ${forecast?.invalidation_point?.toFixed(2) || '---'}
+                                {formatPrice(ticker, forecast?.expected_range?.min)} - {formatPrice(ticker, forecast?.expected_range?.max)}
                             </div>
                         </div>
                         <div className="glass terminal-border" style={{ padding: '1rem', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', marginBottom: '8px' }}>
                                 <ShieldCheck size={14} />
+                                <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Invalidation Point</span>
+                            </div>
+                            <div className="mono" style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--danger)' }}>
+                                {formatPrice(ticker, forecast?.invalidation_point)}
+                            </div>
+                        </div>
+                        <div className="glass terminal-border" style={{ padding: '1rem', borderRadius: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', marginBottom: '8px' }}>
+                                <Target size={14} />
                                 <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Model Confidence</span>
                             </div>
                             <div className="mono" style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
@@ -189,8 +190,8 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                 }}>
                     <div className="glass terminal-border" style={{ padding: '1.25rem', borderRadius: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-secondary)', marginBottom: '1rem' }}>
-                            <Activity size={18} />
-                            <span style={{ fontWeight: '900', fontSize: '0.8rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Engine Insights</span>
+                            <Cpu size={18} />
+                            <span style={{ fontWeight: '900', fontSize: '0.8rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Neural Analysis</span>
                         </div>
 
                         {!forecast ? (
@@ -211,14 +212,14 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                                     <span style={{ color: 'var(--text-dim)' }}>ATR Volatility</span>
-                                    <span className="mono" style={{ color: 'white' }}>${forecast?.volatility_atr?.toFixed(4)}</span>
+                                    <span className="mono" style={{ color: 'white' }}>{formatPrice(ticker, forecast?.volatility_atr)}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                                     <span style={{ color: 'var(--text-dim)' }}>Price Variance</span>
                                     <span className="mono" style={{ color: highlightColor }}>HIGH</span>
                                 </div>
                                 <div style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.03)', fontSize: '0.7rem', color: 'var(--text-dim)', lineHeight: '1.4' }}>
-                                    Asset exhibits {forecast.bias} skew within current timeframe. Strategy {forecast.strategy} recommending entry adjustment near ${forecast.expected_range.min.toFixed(2)}.
+                                    Asset exhibits {forecast.bias} skew within current timeframe. Strategy {forecast.strategy} recommending entry adjustment near {formatPrice(ticker, forecast.expected_range.min)}.
                                 </div>
                             </div>
                         )}

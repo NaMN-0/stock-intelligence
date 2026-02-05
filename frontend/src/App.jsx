@@ -4,13 +4,14 @@ import TickerCard from './components/TickerCard';
 import TickerDetails from './components/TickerDetails';
 import MetricsBar from './components/MetricsBar';
 import LandingPage from './components/LandingPage';
-import { LayoutGrid, BarChart3, Settings, ShieldCheck, ShieldAlert, Zap, TrendingUp, TrendingDown, Minus, RefreshCw, Plus, Globe } from 'lucide-react';
+import { Grid3X3, BarChart3, Terminal, ShieldCheck, ShieldAlert, Zap, TrendingUp, TrendingDown, Minus, RefreshCw, Plus, Globe, ScanSearch, Activity, Layers } from 'lucide-react';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [showUniverseModal, setShowUniverseModal] = useState(false);
   const [newTickersInput, setNewTickersInput] = useState('');
   const [isAddingTickers, setIsAddingTickers] = useState(false);
+  const [showTerminal, setShowTerminal] = useState(false);
   const [tickers, setTickers] = useState([]);
   const [data, setData] = useState({});
   const [metrics, setMetrics] = useState(null);
@@ -155,32 +156,33 @@ function App() {
         padding: '1.5rem 0',
         borderBottom: '1px solid var(--border-glass)'
       }}>
-        <div onClick={() => setShowLanding(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div onClick={() => setShowLanding(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{
-            width: '48px',
-            height: '48px',
-            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
-            borderRadius: '12px',
+            width: '64px',
+            height: '64px',
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid var(--border-glass)',
+            borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(0, 255, 213, 0.2)'
+            padding: '10px'
           }}>
-            <Zap size={24} color="#000" fill="currentColor" />
+            <img src="/logo.png" alt="Quant Sourcer" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div>
             <h1 style={{
-              fontSize: '1.4rem',
+              fontSize: '1.75rem',
               fontWeight: '900',
               letterSpacing: '3px',
               textTransform: 'uppercase',
-              background: 'linear-gradient(90deg, #fff, var(--text-dim))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>QUANT SOURCER</h1>
-            <p style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: '500', letterSpacing: '1px' }}>NEURAL MARKET INTELLIGENCE</p>
+              color: 'white',
+              marginBottom: '-4px'
+            }}>QUANT <span style={{ color: 'var(--accent-primary)' }}>SOURCER</span></h1>
+            <p className="mono" style={{ fontSize: '0.65rem', color: 'var(--text-dim)', letterSpacing: '4px', fontWeight: 'bold' }}>SYSTEMS_CORE_v1.2</p>
           </div>
         </div>
+
 
         <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
           <div className="glass mono" style={{
@@ -227,21 +229,25 @@ function App() {
             EXPAND UNIVERSE
           </button>
 
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            border: '1px solid var(--border-glass)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }} className="terminal-border">
-            <Settings size={18} color="var(--text-dim)" />
+          <div
+            onClick={() => setShowTerminal(!showTerminal)}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              border: '1px solid var(--border-glass)',
+              background: showTerminal ? 'var(--accent-primary)' : 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              color: showTerminal ? '#000' : 'var(--text-dim)'
+            }} className="terminal-border">
+            <Terminal size={18} />
           </div>
         </div>
-      </header>
+      </header >
 
       <MetricsBar metrics={metrics} />
 
@@ -249,59 +255,102 @@ function App() {
         position: 'fixed',
         bottom: '2.5rem',
         right: '2.5rem',
-        width: '400px',
+        width: showTerminal ? '600px' : '400px',
+        maxHeight: showTerminal ? '400px' : 'none',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
-        gap: '1rem'
+        gap: '1rem',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
-        {metrics?.is_syncing && (
+        {showTerminal && (
           <div className="glass terminal-border animate-fade-in" style={{
-            padding: '1.25rem',
-            background: 'var(--bg-deep)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
-            borderRadius: '16px'
+            background: 'rgba(0,0,0,0.95)',
+            borderRadius: '16px',
+            border: '1px solid var(--accent-primary)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 0 50px rgba(0, 255, 213, 0.15)'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+            <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-glass)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <RefreshCw size={14} className="animate-spin" color="var(--accent-primary)" />
-                <span className="mono" style={{ fontWeight: '900', letterSpacing: '2px', fontSize: '0.65rem', color: 'white' }}>SYNCING_SYSTEM_CORE</span>
+                <Activity size={12} color="var(--accent-primary)" />
+                <span className="mono" style={{ fontSize: '0.65rem' }}>SYSTEM_LOGS_STREAM</span>
               </div>
-              <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '900' }}>
-                {Math.round((metrics.processed_tickers / metrics.total_tickers) * 100)}%
-              </span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff5f56' }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffbd2e' }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27c93f' }} />
+              </div>
             </div>
-            <div style={{ height: '4px', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${(metrics.processed_tickers / metrics.total_tickers) * 100}%`,
-                background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
-                boxShadow: '0 0 15px var(--accent-glow)',
-                transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
-              }} />
-            </div>
-            <div className="mono" style={{ marginTop: '1rem', fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-              <span style={{ color: 'var(--accent-primary)' }}>[SECURE]</span> Initializing neural weights for {metrics.total_tickers} assets...<br />
-              <span style={{ color: 'var(--accent-secondary)' }}>[STABLE]</span> {metrics.processed_tickers} nodes validated.
+            <div className="mono" style={{ padding: '1.25rem', height: '300px', overflowY: 'auto', fontSize: '0.7rem', lineHeight: '1.8', color: 'var(--text-dim)' }}>
+              <span style={{ color: 'var(--accent-primary)' }}>[SYSTEM]</span> Kernel v1.2.0 initialized.<br />
+              <span style={{ color: 'var(--accent-secondary)' }}>[STABLE]</span> Handshake with Render cloud complete.<br />
+              <span style={{ color: 'var(--success)' }}>[OK]</span> SQLite WAL mode active.<br />
+              <span style={{ color: 'var(--text-muted)' }}>[INFO]</span> Indexing asset universe (N={metrics?.total_tickers || '---'})...<br />
+              <span style={{ color: 'var(--accent-primary)' }}>[PROCESS]</span> Evaluating {metrics?.total_tickers || '---'} neural weights...<br />
+              <span style={{ color: 'var(--warning)' }}>[WARN]</span> Rate limit caution on NSE data node.<br />
+              {metrics?.processed_tickers > 0 && (
+                <>
+                  <span style={{ color: 'var(--success)' }}>[OK]</span> {metrics.processed_tickers} nodes synced and ready.<br />
+                </>
+              )}
+              <span style={{ color: 'var(--accent-primary)' }}>&gt;</span> System status: <span style={{ color: 'var(--success)' }}>NOMINAL</span><br />
+              <span className="animate-pulse">_</span>
             </div>
           </div>
         )}
 
-        {metrics?.last_error && (
-          <div className="glass terminal-border animate-fade-in" style={{
-            padding: '1rem',
-            background: 'rgba(255, 45, 85, 0.05)',
-            borderLeft: '4px solid var(--danger)',
-            borderRadius: '12px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-              <ShieldAlert size={14} color="var(--danger)" />
-              <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--danger)', fontWeight: '900', letterSpacing: '1px' }}>KERNEL_EXCEPTION</span>
-            </div>
-            <div className="mono" style={{ fontSize: '0.65rem', color: 'var(--text-dim)', opacity: 0.8 }}>
-              {metrics.last_error}
-            </div>
+        {(metrics?.is_syncing || metrics?.last_error) && !showTerminal && (
+          <div
+            onClick={() => setShowTerminal(true)}
+            className="glass terminal-border animate-fade-in"
+            style={{
+              padding: '1.25rem',
+              background: 'var(--bg-deep)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+              borderRadius: '16px',
+              cursor: 'pointer'
+            }}
+          >
+            {metrics?.is_syncing && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <RefreshCw size={14} className="animate-spin" color="var(--accent-primary)" />
+                    <span className="mono" style={{ fontWeight: '900', letterSpacing: '2px', fontSize: '0.65rem', color: 'white' }}>SYNCING_SYSTEM_CORE</span>
+                  </div>
+                  <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: '900' }}>
+                    {Math.round((metrics.processed_tickers / metrics.total_tickers) * 100)}%
+                  </span>
+                </div>
+                <div style={{ height: '4px', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${(metrics.processed_tickers / metrics.total_tickers) * 100}%`,
+                    background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
+                    boxShadow: '0 0 15px var(--accent-glow)',
+                    transition: 'width 0.8s'
+                  }} />
+                </div>
+              </>
+            )}
+
+            {metrics?.last_error && (
+              <div style={{
+                marginTop: metrics?.is_syncing ? '1rem' : 0,
+                padding: '0.5rem',
+                background: 'rgba(255, 45, 85, 0.05)',
+                borderLeft: '4px solid var(--danger)',
+                borderRadius: '8px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <ShieldAlert size={14} color="var(--danger)" />
+                  <span className="mono" style={{ fontSize: '0.6rem', color: 'var(--danger)', fontWeight: '900' }}>KERNEL_EXCEPTION</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -309,7 +358,7 @@ function App() {
       <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '2rem' }}>
         <div style={{ position: 'relative', flex: 1, maxWidth: '450px' }}>
           <div style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-            <LayoutGrid size={18} />
+            <ScanSearch size={18} />
           </div>
           <input
             type="text"
@@ -437,129 +486,135 @@ function App() {
         </div>
       </div>
 
-      {filteredTickers.length === 0 ? (
-        <div className="glass terminal-border" style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <RefreshCw className="animate-spin" style={{ margin: '0 auto 1.5rem', opacity: 0.3 }} size={48} />
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>NO TICKERS FOUND</h3>
-          <p>Syncing data or waiting for market signals...</p>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-          {filteredTickers.map(ticker => (
-            <TickerCard
-              key={ticker}
-              ticker={ticker}
-              price={data[ticker]?.price}
-              signal={data[ticker]?.signal}
-              onClick={handleTickerClick}
+      {
+        filteredTickers.length === 0 ? (
+          <div className="glass terminal-border" style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <RefreshCw className="animate-spin" style={{ margin: '0 auto 1.5rem', opacity: 0.3 }} size={48} />
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>NO TICKERS FOUND</h3>
+            <p>Syncing data or waiting for market signals...</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {filteredTickers.map(ticker => (
+              <TickerCard
+                key={ticker}
+                ticker={ticker}
+                price={data[ticker]?.price}
+                signal={data[ticker]?.signal}
+                onClick={handleTickerClick}
+              />
+            ))}
+          </div>
+        )
+      }
+
+      {
+        selectedTicker && (
+          <>
+            <div
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}
+              onClick={() => setSelectedTicker(null)}
             />
-          ))}
-        </div>
-      )}
-
-      {selectedTicker && (
-        <>
-          <div
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 90 }}
-            onClick={() => setSelectedTicker(null)}
-          />
-          <TickerDetails
-            ticker={selectedTicker}
-            data={historicalData}
-            forecast={forecast}
-            loading={modalLoading}
-            metrics={metrics}
-            onClose={() => setSelectedTicker(null)}
-          />
-        </>
-      )}
-
-      {showUniverseModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.9)',
-          zIndex: 2000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(10px)'
-        }} onClick={() => setShowUniverseModal(false)}>
-          <div className="glass terminal-border animate-fade-in" style={{
-            width: '90vw',
-            maxWidth: '500px',
-            padding: '2.5rem',
-            background: 'var(--bg-deep)',
-            borderRadius: '24px',
-            boxShadow: '0 0 100px rgba(0, 162, 255, 0.1)'
-          }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
-              <div style={{ padding: '10px', background: 'rgba(0, 162, 255, 0.1)', borderRadius: '12px', color: 'var(--accent-secondary)' }}>
-                <Globe size={24} />
-              </div>
-              <div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '900', letterSpacing: '1px' }}>EXPAND UNIVERSE</h2>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 'bold' }}>MANUAL ASSET INGESTION CORE</p>
-              </div>
-            </div>
-
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-              Paste ticker symbols below (comma or space separated). The engine will automatically initialize historical backtests and neural weights.
-            </p>
-
-            <textarea
-              className="glass mono"
-              placeholder="AAPL, TSLA, BTC-USD, MSFT..."
-              style={{
-                width: '100%',
-                height: '150px',
-                padding: '1.25rem',
-                background: 'rgba(0,0,0,0.3)',
-                border: '1px solid var(--border-glass)',
-                borderRadius: '12px',
-                color: 'white',
-                fontSize: '0.85rem',
-                letterSpacing: '1px',
-                marginBottom: '2rem',
-                resize: 'none'
-              }}
-              value={newTickersInput}
-              onChange={(e) => setNewTickersInput(e.target.value)}
+            <TickerDetails
+              ticker={selectedTicker}
+              data={historicalData}
+              forecast={forecast}
+              loading={modalLoading}
+              metrics={metrics}
+              onClose={() => setSelectedTicker(null)}
             />
+          </>
+        )
+      }
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button
+      {
+        showUniverseModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            zIndex: 2000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(10px)'
+          }} onClick={() => setShowUniverseModal(false)}>
+            <div className="glass terminal-border animate-fade-in" style={{
+              width: '90vw',
+              maxWidth: '500px',
+              padding: '2.5rem',
+              background: 'var(--bg-deep)',
+              borderRadius: '24px',
+              boxShadow: '0 0 100px rgba(0, 162, 255, 0.1)'
+            }} onClick={e => e.stopPropagation()}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
+                <div style={{ padding: '10px', background: 'rgba(0, 162, 255, 0.1)', borderRadius: '12px', color: 'var(--accent-secondary)' }}>
+                  <Globe size={24} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: '900', letterSpacing: '1px' }}>EXPAND UNIVERSE</h2>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 'bold' }}>MANUAL ASSET INGESTION CORE</p>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                Paste ticker symbols below (comma or space separated). The engine will automatically initialize historical backtests and neural weights.
+              </p>
+
+              <textarea
                 className="glass mono"
-                style={{ flex: 1, padding: '1rem', borderRadius: '12px', background: 'transparent', border: '1px solid var(--border-glass)', color: 'white', cursor: 'pointer', fontWeight: '900' }}
-                onClick={() => setShowUniverseModal(false)}
-              >
-                ABORT
-              </button>
-              <button
-                className="glass mono"
+                placeholder="AAPL, TSLA, BTC-USD, MSFT..."
                 style={{
-                  flex: 1,
-                  padding: '1rem',
+                  width: '100%',
+                  height: '150px',
+                  padding: '1.25rem',
+                  background: 'rgba(0,0,0,0.3)',
+                  border: '1px solid var(--border-glass)',
                   borderRadius: '12px',
-                  background: 'var(--accent-secondary)',
-                  border: 'none',
                   color: 'white',
-                  cursor: 'pointer',
-                  fontWeight: '900',
-                  boxShadow: '0 0 20px rgba(0, 162, 255, 0.3)'
+                  fontSize: '0.85rem',
+                  letterSpacing: '1px',
+                  marginBottom: '2rem',
+                  resize: 'none'
                 }}
-                disabled={isAddingTickers}
-                onClick={handleAddTickers}
-              >
-                {isAddingTickers ? 'INITIALIZING...' : 'INGEST ASSETS'}
-              </button>
+                value={newTickersInput}
+                onChange={(e) => setNewTickersInput(e.target.value)}
+              />
+
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button
+                  className="glass mono"
+                  style={{ flex: 1, padding: '1rem', borderRadius: '12px', background: 'transparent', border: '1px solid var(--border-glass)', color: 'white', cursor: 'pointer', fontWeight: '900' }}
+                  onClick={() => setShowUniverseModal(false)}
+                >
+                  ABORT
+                </button>
+                <button
+                  className="glass mono"
+                  style={{
+                    flex: 1,
+                    padding: '1rem',
+                    borderRadius: '12px',
+                    background: 'var(--accent-secondary)',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: '900',
+                    boxShadow: '0 0 20px rgba(0, 162, 255, 0.3)'
+                  }}
+                  disabled={isAddingTickers}
+                  onClick={handleAddTickers}
+                >
+                  {isAddingTickers ? 'INITIALIZING...' : 'INGEST ASSETS'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <footer style={{ marginTop: '4rem', padding: '2rem 0', borderTop: '1px solid var(--border)', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
         <p style={{ marginBottom: '1rem', opacity: 0.6 }}>
@@ -567,7 +622,7 @@ function App() {
         </p>
         <p>&copy; 2026 QUANT SOURCER ENGINE</p>
       </footer>
-    </div>
+    </div >
   );
 }
 

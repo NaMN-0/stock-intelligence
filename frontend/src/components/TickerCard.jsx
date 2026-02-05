@@ -1,13 +1,14 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react';
+import { Orbit, Zap, Minus, Activity, FastForward, Scan } from 'lucide-react';
+import { formatPrice, formatTime } from '../utils/formatters';
 
 const TickerCard = ({ ticker, price, signal, onClick }) => {
     const isBullish = signal?.signal === 'bullish';
     const isBearish = signal?.signal === 'bearish';
     const isPenny = price > 0 && price < 5.0;
 
-    const SignalIcon = isBullish ? TrendingUp : isBearish ? TrendingDown : Minus;
-    const signalColor = isBullish ? 'var(--success)' : isBearish ? 'var(--danger)' : 'var(--text-dim)';
+    const SignalIcon = isBullish ? Orbit : isBearish ? FastForward : Minus;
+    const signalColor = isBullish ? 'var(--accent-primary)' : isBearish ? 'var(--danger)' : 'var(--text-dim)';
 
     return (
         <div
@@ -63,7 +64,7 @@ const TickerCard = ({ ticker, price, signal, onClick }) => {
                     fontFamily: 'var(--font-mono)',
                     color: 'white'
                 }}>
-                    ${price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '---'}
+                    {formatPrice(ticker, price)}
                 </div>
             </div>
 
@@ -120,11 +121,11 @@ const TickerCard = ({ ticker, price, signal, onClick }) => {
                 letterSpacing: '0.5px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Activity size={12} color="var(--accent-primary)" />
+                    <Scan size={12} color="var(--accent-primary)" />
                     <span style={{ color: 'var(--text-dim)' }}>{signal?.strategy?.toUpperCase() || 'CORE_ENGINE'}</span>
                 </div>
                 <div style={{ fontFamily: 'var(--font-mono)' }}>
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    {formatTime(new Date())}
                 </div>
             </div>
         </div>

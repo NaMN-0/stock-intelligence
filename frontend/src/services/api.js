@@ -1,6 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const api = {
+  baseUrl: BASE_URL,
   async getTickers() {
     const res = await fetch(`${BASE_URL}/tickers`);
     if (!res.ok) throw new Error('Failed to fetch tickers');
