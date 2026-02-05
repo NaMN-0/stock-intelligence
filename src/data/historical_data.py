@@ -7,6 +7,7 @@ import sys
 from src.core.config import settings
 from src.core.logger import logger
 from src.core.state import state_cache
+import time
 
 class HistoricalDataManager:
     def __init__(self):
@@ -101,12 +102,13 @@ class HistoricalDataManager:
             interval = interval_map.get(tf, "1h")
             period = "60d" if tf in ["5m", "15m", "1h"] else "7d" if tf == "1m" else "1y"
 
-            chunk_size = 50
+            chunk_size = 10  # Reduced from 50 to avoid Rate Limits
             for i in range(0, len(tickers), chunk_size):
                 chunk = tickers[i:i + chunk_size]
                 try:
                     logger.debug(f"Fetching {tf} data chunk: {i}/{len(tickers)}...")
                     data = yf.download(chunk, period=period, interval=interval, progress=False, group_by="ticker")
+                    time.sleep(2.0) # Rate limit backoff
                     
                     if data is None or data.empty: continue
                     

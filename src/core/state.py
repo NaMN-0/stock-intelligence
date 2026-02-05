@@ -46,6 +46,13 @@ class StateCache:
             
             self.metrics.total_tickers = len(self.tickers)
             logger.info(f"Restored {len(self.tickers)} ticker states from database.")
+            
+            # Reset session-specific metrics
+            self.metrics.errors_count = 0
+            self.metrics.last_error = None
+            self.metrics.processed_tickers = 0
+            self.metrics.start_time = datetime.now()
+            
         except Exception as e:
             logger.error(f"Failed to restore state from DB: {e}")
 
