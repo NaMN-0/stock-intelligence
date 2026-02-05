@@ -12,6 +12,9 @@ from src.utils.serialization import sanitize_json_data
 router = APIRouter()
 data_manager = HistoricalDataManager()
 
+# Registry for orchestrator to avoid circular imports
+orchestrator_instance = None
+
 @router.get("/tickers", response_model=List[str])
 async def get_tickers():
     return tickers
@@ -41,12 +44,8 @@ async def add_tickers(new_symbols: List[str]):
             logger.error(f"Failed to persist tickers: {e}")
 
         # Trigger orchestrator to start syncing these new tickers
-        # The orchestrator discovery runs periodically, but we can force a sync
-        # For now, the discovery loop will pick them up if we add them to the global list
-        # but let's signal the orchestrator if possible.
-        # Since orchestrator is global, we can use it.
-        from main import orchestrator
-        asyncio.create_task(orchestrator.run_discovery())
+        if orchestrator_instance:
+            asyncio.create_task(orchestrator_instance.run_discovery())
         
     return {"status": "success", "added": added, "total": len(tickers)}
 

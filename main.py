@@ -8,8 +8,10 @@ from src.api.routes import router
 from src.core.config import settings
 from src.core.logger import logger
 from src.engine.orchestrator import ServiceOrchestrator
+from src.api import routes
 
 orchestrator = ServiceOrchestrator()
+routes.orchestrator_instance = orchestrator
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

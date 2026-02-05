@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
 
 export const api = {
   baseUrl: BASE_URL,
