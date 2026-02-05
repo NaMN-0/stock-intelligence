@@ -28,6 +28,7 @@ ENV/
 # Data & Cache
 data_cache/*.parquet
 data_cache/*.csv
+data_cache/*.db
 .ipynb_checkpoints
 
 # Frontend
