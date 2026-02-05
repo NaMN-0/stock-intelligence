@@ -52,7 +52,7 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                             <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 'bold' }}>STRATEGY: {forecast?.strategy || 'QUANT_V2'}</span>
                             <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--text-muted)' }} />
-                            <span className="mono" style={{ fontSize: '0.7rem', color: highlightColor, fontWeight: 'bold' }}>BIAS: {forecast?.bias?.toUpperCase() || 'CALIBRATING'}</span>
+                            <span className="mono" style={{ fontSize: '0.7rem', color: highlightColor, fontWeight: 'bold' }}>OUTLOOK: {forecast?.bias?.toUpperCase() || 'CALIBRATING'}</span>
                         </div>
                     </div>
                 </div>
@@ -115,7 +115,7 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                         <div className="glass terminal-border" style={{ padding: '1rem', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', marginBottom: '8px' }}>
                                 <ShieldCheck size={14} />
-                                <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Invalidation Point</span>
+                                <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Risk Level</span>
                             </div>
                             <div className="mono" style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--danger)' }}>
                                 {formatPrice(ticker, forecast?.invalidation_point)}
@@ -124,7 +124,7 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                         <div className="glass terminal-border" style={{ padding: '1rem', borderRadius: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-dim)', marginBottom: '8px' }}>
                                 <Target size={14} />
-                                <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>Model Confidence</span>
+                                <span style={{ fontSize: '0.65rem', fontWeight: '900', letterSpacing: '1px', textTransform: 'uppercase' }}>AI Conviction</span>
                             </div>
                             <div className="mono" style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--accent-primary)' }}>
                                 {((forecast?.confidence || 0) * 100).toFixed(1)}%
@@ -165,15 +165,15 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                                    <span style={{ color: 'var(--text-dim)' }}>ATR Volatility</span>
+                                    <span style={{ color: 'var(--text-dim)' }}>Market Volatility</span>
                                     <span className="mono" style={{ color: 'white' }}>{formatPrice(ticker, forecast?.volatility_atr)}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                                    <span style={{ color: 'var(--text-dim)' }}>Price Variance</span>
+                                    <span style={{ color: 'var(--text-dim)' }}>Variance Skew</span>
                                     <span className="mono" style={{ color: highlightColor }}>HIGH</span>
                                 </div>
                                 <div style={{ marginTop: '0.5rem', padding: '0.75rem', borderRadius: '6px', background: 'rgba(255,255,255,0.03)', fontSize: '0.7rem', color: 'var(--text-dim)', lineHeight: '1.4' }}>
-                                    Asset exhibits {forecast.bias} skew within current timeframe. Strategy {forecast.strategy} recommending entry adjustment near {formatPrice(ticker, forecast.expected_range.min)}.
+                                    Our AI suggests a <strong style={{ color: 'white' }}>{forecast.bias.toUpperCase()}</strong> trend. Watch for potential entry around <strong style={{ color: 'white' }}>{formatPrice(ticker, forecast.expected_range.min)}</strong>.
                                 </div>
                             </div>
                         )}

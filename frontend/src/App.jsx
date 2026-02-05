@@ -139,7 +139,7 @@ function App() {
   };
 
   const handleEnhanceUniverse = async () => {
-    if (confirm('Initiate autonomous universe expansion? The neural engine will scan for high-volatility targets.')) {
+    if (confirm('Start Auto-Discovery? We will scan the market for high-volume movers and add them to your dashboard.')) {
       setModalLoading(true);
       try {
         const res = await api.enhanceUniverse();
@@ -152,7 +152,7 @@ function App() {
         }
       } catch (err) {
         console.error(err);
-        alert('Improvement sequence failed.');
+        alert('Discovery sequence failed.');
       } finally {
         setModalLoading(false);
       }
@@ -249,7 +249,7 @@ function App() {
             }}
           >
             <Zap size={14} />
-            NEURAL ENHANCE
+            AUTO-DISCOVER
           </button>
 
           <button
@@ -330,14 +330,14 @@ function App() {
               </div>
             </div>
             <div className="mono" style={{ padding: '1.25rem', height: '300px', overflowY: 'auto', fontSize: '0.7rem', lineHeight: '1.8', color: 'var(--text-dim)' }}>
-              <span style={{ color: 'var(--accent-primary)' }}>[SYSTEM]</span> Kernel v1.2.0 initialized.<br />
-              <span style={{ color: 'var(--accent-secondary)' }}>[STABLE]</span> Handshake with Render cloud complete.<br />
-              <span style={{ color: 'var(--success)' }}>[OK]</span> SQLite WAL mode active.<br />
-              <span style={{ color: 'var(--text-muted)' }}>[INFO]</span> Indexing asset universe (N={metrics?.total_tickers || '---'})...<br />
-              <span style={{ color: 'var(--accent-primary)' }}>[PROCESS]</span> Evaluating {metrics?.total_tickers || '---'} neural weights...<br />
+              <span style={{ color: 'var(--accent-primary)' }}>[SYSTEM]</span> Market Core v1.2.0 active.<br />
+              <span style={{ color: 'var(--accent-secondary)' }}>[STABLE]</span> Connected to Render cloud.<br />
+              <span style={{ color: 'var(--success)' }}>[OK]</span> Database ready.<br />
+              <span style={{ color: 'var(--text-muted)' }}>[INFO]</span> Connecting to global data feeds (N={metrics?.total_tickers || '---'})...<br />
+              <span style={{ color: 'var(--accent-primary)' }}>[PROCESS]</span> Analyzing {metrics?.total_tickers || '---'} assets for patterns...<br />
               {metrics?.processed_tickers > 0 && (
                 <>
-                  <span style={{ color: 'var(--success)' }}>[OK]</span> {metrics.processed_tickers}/{metrics?.total_tickers || '?'} nodes synced and ready.<br />
+                  <span style={{ color: 'var(--success)' }}>[OK]</span> {metrics.processed_tickers}/{metrics?.total_tickers || '?'} assets analyzed and ready.<br />
                 </>
               )}
               <span style={{ color: 'var(--accent-primary)' }}>&gt;</span> System status: <span style={{ color: 'var(--success)' }}>NOMINAL</span><br />

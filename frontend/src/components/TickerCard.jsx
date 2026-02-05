@@ -91,10 +91,10 @@ const TickerCard = ({ ticker, price, signal, onClick }) => {
                 <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            {signal?.signal || 'IDENTIFYING'}
+                            {signal?.signal === 'bullish' ? 'BULLISH' : (signal?.signal === 'bearish' ? 'BEARISH' : 'NEUTRAL')}
                         </span>
                         <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'white', fontFamily: 'var(--font-mono)' }}>
-                            {((signal?.confidence || 0) * 100).toFixed(0)}%
+                            {((signal?.confidence || 0) * 100).toFixed(0)}% CONVICTION
                         </span>
                     </div>
                     <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
