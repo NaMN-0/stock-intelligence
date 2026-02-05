@@ -2,6 +2,8 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 from src.core.logger import logger
+import os
+from src.core.config import settings
 
 class TickerState(BaseModel):
     ticker: str
@@ -59,8 +61,21 @@ class StateCache:
         self.db.save_metrics(self.get_metrics())
 
     def track_data(self, size_bytes: int):
-        self.metrics.data_processed_mb += size_bytes / (1024 * 1024)
-        self.db.save_metrics(self.get_metrics())
+        # Deprecated: usage is now calculated from disk directly
+        pass
+
+    def _calculate_cache_size(self) -> float:
+        """Calculates total size of cache directory in MB."""
+        try:
+            total_size = 0
+            cache_dir = settings.data.cache_dir
+            if os.path.exists(cache_dir):
+                for entry in os.scandir(cache_dir):
+                    if entry.is_file():
+                        total_size += entry.stat().st_size
+            return total_size / (1024 * 1024)
+        except Exception:
+            return 0.0
 
     def update_price(self, ticker: str, price: float):
         state = self._ensure_ticker(ticker)
@@ -104,6 +119,8 @@ class StateCache:
     
     def get_metrics(self) -> Dict[str, Any]:
         self.metrics.uptime_seconds = (datetime.now() - self.metrics.start_time).total_seconds()
+        # Update cache size on read (throttling could be added if needed)
+        self.metrics.data_processed_mb = self._calculate_cache_size()
         return self.metrics.dict()
 
 # Global state cache

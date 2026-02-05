@@ -110,8 +110,6 @@ class HistoricalDataManager:
                     
                     if data is None or data.empty: continue
                     
-                    # Track total bytes processed (estimate from dataframe memory usage)
-                    state_cache.track_data(data.memory_usage(deep=True).sum())
 
                     for ticker in chunk:
                         try:
