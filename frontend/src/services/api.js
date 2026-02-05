@@ -4,9 +4,14 @@ const BASE_URL = rawUrl.endsWith('/') ? rawUrl.slice(0, -1) : rawUrl;
 export const api = {
   baseUrl: BASE_URL,
   async getTickers() {
-    const res = await fetch(`${BASE_URL}/tickers`);
-    if (!res.ok) throw new Error('Failed to fetch tickers');
-    return res.json();
+    try {
+      const res = await fetch(`${BASE_URL}/tickers`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.json();
+    } catch (error) {
+      console.error('API connection failed:', { url: `${BASE_URL}/tickers`, error });
+      throw error;
+    }
   },
 
   async getAllStates() {

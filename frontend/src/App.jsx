@@ -24,14 +24,19 @@ function App() {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    const init = async () => {
+    const init = async (retries = 3) => {
       try {
         const tickerList = await api.getTickers();
         setTickers(tickerList);
         setLoading(false);
       } catch (err) {
-        console.error('Initialization failed', err);
-        setLoading(false);
+        if (retries > 0) {
+          console.warn(`Init failed, retrying... (${retries} left)`);
+          setTimeout(() => init(retries - 1), 2000);
+        } else {
+          console.error('Initialization failed permanently', err);
+          setLoading(false);
+        }
       }
     };
     init();
@@ -100,19 +105,34 @@ function App() {
     setForecast(null);
 
     try {
-      const [hist, move] = await Promise.allSettled([
-        api.getHistoricalData(ticker),
-        api.getExpectedMove(ticker)
-      ]);
+      // Fetch historical data (1h for 7-day view)
+      const hist = await api.getHistoricalData(ticker, '1h');
+      if (Array.isArray(hist) && hist.length > 0) {
+        setHistoricalData(hist);
+      }
 
-      if (hist.status === 'fulfilled') setHistoricalData(hist.value);
-      if (move.status === 'fulfilled') setForecast(move.value);
-    } catch (err) {
-      console.error('Failed to fetch details', err);
+      // Fetch other data in parallel
+      const strategyRes = await api.getBestStrategy(ticker);
+      const signalRes = await api.getCurrentSignal(ticker);
+      const moveRes = await api.getExpectedMove(ticker);
+      const priceRes = await api.getLivePrice(ticker);
+
+      setForecast({
+        strategy: strategyRes.best_strategy,
+        bias: signalRes.signal,
+        confidence: signalRes.confidence,
+        volatility_atr: signalRes.volatility_atr || 0,
+        expected_range: moveRes.range,
+        invalidation_point: moveRes.invalidation,
+        price: priceRes.price
+      });
+    } catch (e) {
+      console.error("Failed to load ticker details", e);
     } finally {
       setModalLoading(false);
     }
   };
+
 
   const handleAddTickers = async () => {
     if (!newTickersInput.trim()) return;

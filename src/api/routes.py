@@ -135,8 +135,8 @@ async def get_historical(ticker: str, timeframe: str = "1h"):
         if df is None or df.empty:
             raise HTTPException(status_code=404, detail="Historical data not found")
         
-        # Return last 100 rows as JSON
-        data = df.tail(100).reset_index().to_dict(orient="records")
+        # Return last 336 rows (approx 14 days of hourly data) to ensure 7 days are fully covered with buffer
+        data = df.tail(336).reset_index().to_dict(orient="records")
         return sanitize_json_data(data)
     except Exception as e:
         state_cache.add_error(f"Historical api error: {str(e)}")
