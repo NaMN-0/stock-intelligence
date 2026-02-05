@@ -1,6 +1,6 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
 import { X, Target, AlertCircle, AlertTriangle, ShieldCheck, RefreshCw, Scan, BarChart3, Zap, Cpu, Orbit, Database } from 'lucide-react';
 import { formatPrice, getCurrencySymbol } from '../utils/formatters';
+import PriceChart from './PriceChart';
 
 const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) => {
     if (!ticker) return null;
@@ -95,54 +95,8 @@ const TickerDetails = ({ ticker, data, forecast, loading, metrics, onClose }) =>
                                 <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-dim)', letterSpacing: '2px' }}>DECRYPTING MARKET DATA...</span>
                             </div>
                         ) : (
-                            <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <LineChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                                        <XAxis
-                                            dataKey="timestamp"
-                                            hide
-                                        />
-                                        <YAxis
-                                            domain={['auto', 'auto']}
-                                            orientation="right"
-                                            tick={{ fill: 'var(--text-muted)', fontSize: 10, fontFamily: 'var(--font-mono)' }}
-                                            axisLine={false}
-                                            tickLine={false}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{ background: 'var(--bg-deep)', border: '1px solid var(--border-glass)', borderRadius: '8px', fontSize: '10px' }}
-                                            itemStyle={{ color: 'var(--accent-primary)' }}
-                                        />
-
-                                        {forecast?.expected_range && (
-                                            <ReferenceArea
-                                                y1={forecast.expected_range.min}
-                                                y2={forecast.expected_range.max}
-                                                fill={highlightColor}
-                                                fillOpacity={0.03}
-                                            />
-                                        )}
-
-                                        {forecast?.invalidation_point && (
-                                            <ReferenceLine
-                                                y={forecast.invalidation_point}
-                                                stroke="var(--danger)"
-                                                strokeDasharray="5 5"
-                                                label={{ position: 'right', value: 'INVALIDATION', fill: 'var(--danger)', fontSize: 8, fontWeight: 'bold' }}
-                                            />
-                                        )}
-
-                                        <Line
-                                            type="monotone"
-                                            dataKey="Close"
-                                            stroke="var(--accent-primary)"
-                                            strokeWidth={2}
-                                            dot={false}
-                                            animationDuration={1000}
-                                        />
-                                    </LineChart>
-                                </ResponsiveContainer>
+                            <div style={{ position: 'absolute', top: 20, left: 20, right: 20, bottom: 20 }}>
+                                <PriceChart data={chartData} forecast={forecast} isBullish={isBullish} />
                             </div>
                         )}
                     </div>
