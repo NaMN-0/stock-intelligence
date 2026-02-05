@@ -31,6 +31,9 @@ function App() {
     const status = getMarketStatus(activeMarket);
     setMarketStatus(status);
 
+    // Notify engine to prioritize this region
+    api.setEngineFocus(activeMarket);
+
     // Update every minute
     const interval = setInterval(() => {
       setMarketStatus(getMarketStatus(activeMarket));

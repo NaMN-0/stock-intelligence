@@ -32,6 +32,15 @@ export const api = {
     return res.json();
   },
 
+  async setEngineFocus(region) {
+    // Fire and forget, don't block UI
+    fetch(`${BASE_URL}/engine/focus`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ region })
+    }).catch(e => console.error("Failed to set engine focus", e));
+  },
+
   async getLivePrice(ticker) {
     const res = await fetch(`${BASE_URL}/live-price/${ticker}`);
     if (!res.ok) throw new Error(`Failed to fetch price for ${ticker}`);

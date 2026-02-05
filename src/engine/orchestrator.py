@@ -15,6 +15,7 @@ class ServiceOrchestrator:
         self.live_monitor = LivePriceMonitor()
         self.selector = StrategySelector(self.data_manager)
         self.forecaster = ForecastEngine(self.data_manager)
+        self.focus_region = "US"  # Default focus
         self.running = False
 
     async def start(self):
@@ -100,7 +101,28 @@ class ServiceOrchestrator:
 
     async def update_all_intelligence(self):
         """Generates signals and forecasts for all tickers."""
-        for ticker in tickers:
+    def set_focus_region(self, region: str):
+        """Updates the engine's focus region (US, IN, CRYPTO)."""
+        logger.info(f"Engine switching focus to: {region}")
+        self.focus_region = region
+
+    def _get_ticker_region(self, ticker: str) -> str:
+        t = ticker.upper()
+        if t.endswith('.NS') or t.endswith('.BO'):
+            return 'IN'
+        if '-USD' in t or 'USD' in t or 'BTC' in t or 'ETH' in t:
+            return 'CRYPTO'
+        return 'US'
+
+    async def update_all_intelligence(self):
+        """Generates signals and forecasts, prioritizing the focused region."""
+        # Sort tickers: Focused region first
+        sorted_tickers = sorted(
+            tickers, 
+            key=lambda t: 0 if self._get_ticker_region(t) == self.focus_region else 1
+        )
+        
+        for ticker in sorted_tickers:
             try:
                 state = state_cache.get_state(ticker)
                 

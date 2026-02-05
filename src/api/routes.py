@@ -142,6 +142,15 @@ async def get_historical(ticker: str, timeframe: str = "1h"):
         state_cache.add_error(f"Historical api error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/engine/focus")
+async def set_engine_focus(payload: Dict[str, str]):
+    """Prioritizes processing for the specified market region (US, IN, CRYPTO)."""
+    region = payload.get("region", "US").upper()
+    if orchestrator_instance:
+        orchestrator_instance.set_focus_region(region)
+        return {"status": "success", "message": f"Engine focus switched to {region}"}
+    return {"status": "error", "message": "Orchestrator not active"}
+
 @router.get("/health")
 async def health_check():
     return sanitize_json_data({"status": "healthy", "timestamp": str(pd.Timestamp.now())})
