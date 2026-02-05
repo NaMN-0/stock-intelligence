@@ -335,10 +335,9 @@ function App() {
               <span style={{ color: 'var(--success)' }}>[OK]</span> SQLite WAL mode active.<br />
               <span style={{ color: 'var(--text-muted)' }}>[INFO]</span> Indexing asset universe (N={metrics?.total_tickers || '---'})...<br />
               <span style={{ color: 'var(--accent-primary)' }}>[PROCESS]</span> Evaluating {metrics?.total_tickers || '---'} neural weights...<br />
-              <span style={{ color: 'var(--warning)' }}>[WARN]</span> Rate limit caution on NSE data node.<br />
               {metrics?.processed_tickers > 0 && (
                 <>
-                  <span style={{ color: 'var(--success)' }}>[OK]</span> {metrics.processed_tickers} nodes synced and ready.<br />
+                  <span style={{ color: 'var(--success)' }}>[OK]</span> {metrics.processed_tickers}/{metrics?.total_tickers || '?'} nodes synced and ready.<br />
                 </>
               )}
               <span style={{ color: 'var(--accent-primary)' }}>&gt;</span> System status: <span style={{ color: 'var(--success)' }}>NOMINAL</span><br />
